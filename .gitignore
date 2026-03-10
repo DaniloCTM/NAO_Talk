@@ -1,0 +1,14 @@
+.env
+*.env
+.venv/
+venv/
+stt_env/
+__pycache__/
+*.pyc
+.claude/
+
+# Generated/runtime artifacts
+voice_assistant/logs/
+
+# Local model binaries
+voice_assistant/models/*.onnx

@@ -1,0 +1,35 @@
+audio:
+  sample_rate: 16000
+  channels: 1
+  speech_threshold: 0.02   # RMS minimo para considerar fala (0.0–1.0)
+  silence_duration: 1.5    # segundos de silencio para encerrar gravacao
+  max_duration: 30.0       # limite maximo de gravacao em segundos
+
+stt:
+  model: small
+  compute_type: int8
+  language: pt
+
+llm:
+  provider: openrouter
+  model: arcee-ai/trinity-large-preview:free
+  base_url: https://openrouter.ai/api/v1/chat/completions
+  system_prompt: >
+    Você é um assistente de voz.
+    Responda sempre em português, de forma curta e direta, em no máximo duas frases.
+    Nunca use emojis, markdown, listas ou formatação especial.
+
+tts:
+  engine: piper
+  model_path: models/pt_BR-faber-medium.onnx
+  voice: pt_BR
+  sample_rate: 22050
+  espeak_data: /usr/lib/x86_64-linux-gnu/espeak-ng-data
+  piper_libs: /tmp/piper
+
+# Network mode (used with --mode server / --mode client / --mode tcp-server)
+network:
+  host: 0.0.0.0          # server bind address
+  port: 50007            # UDP port (--mode server / --mode client)
+  tcp_port: 50007        # TCP port (--mode tcp-server / scripts/client.sh)
+  server_host: 127.0.0.1 # client: IP of the processing machine (UDP client)
