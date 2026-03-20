@@ -11,6 +11,7 @@ SERVER_PORT="${2:-${SERVER_PORT:-50007}}"
 SAMPLE_RATE=16000
 CHANNELS=1
 BIT_DEPTH=16
+ALSA_DEVICE="${ALSA_DEVICE:-default}"
 
 # VAD: threshold de amplitude para considerar fala (em %)
 SPEECH_THRESHOLD="${SPEECH_THRESHOLD:-2}"
@@ -60,7 +61,11 @@ record_audio() {
     (
         while true; do
             local size
-            size=$(wc -c < "$TMP_IN" 2>/dev/null || echo 0)
+            if [ -f "$TMP_IN" ]; then
+                size=$(wc -c < "$TMP_IN")
+            else
+                size=0
+            fi
             if [ "$size" -gt 44 ]; then
                 echo "Fala detectada!"
                 break
@@ -75,6 +80,7 @@ record_audio() {
     #   - 1 período acima de SPEECH_THRESHOLD% por SPEECH_START_DURATION s → inicia
     #   - 1 período abaixo de SILENCE_THRESHOLD% por SILENCE_DURATION s    → encerra
     { arecord \
+        -D "$ALSA_DEVICE" \
         --format=S16_LE \
         --rate="$SAMPLE_RATE" \
         --channels="$CHANNELS" \
@@ -118,6 +124,7 @@ now_ms() {
 
 echo "=== Assistente de Voz (cliente bash) ==="
 echo "Servidor: $SERVER_HOST:$SERVER_PORT"
+echo "Dispositivo ALSA: $ALSA_DEVICE"
 echo "VAD: início=${SPEECH_THRESHOLD}% por ${SPEECH_START_DURATION}s | silêncio=${SILENCE_THRESHOLD}% por ${SILENCE_DURATION}s"
 
 echo -n "Verificando servidor... "

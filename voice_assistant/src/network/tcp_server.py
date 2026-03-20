@@ -10,7 +10,9 @@ while keeping the read side open to receive the response.
 """
 
 import io
+from pathlib import Path
 import socket
+from tempfile import NamedTemporaryFile
 import wave
 
 import numpy as np
@@ -24,6 +26,7 @@ from src.utils.metrics import MetricsLogger, timer
 logger = get_logger(__name__)
 
 _RECV_BUF = 65_536
+_DEBUG_AUDIO_DIR = Path("/tmp")
 
 
 class TCPServer:
@@ -81,6 +84,23 @@ class TCPServer:
             wf.writeframes(pcm_bytes)
         return buf.getvalue()
 
+    @staticmethod
+    def _save_debug_wav(wav_bytes: bytes, addr: tuple) -> Path:
+        """Persist the raw WAV request to /tmp for offline inspection."""
+        host, port = addr[:2]
+        host_tag = str(host).replace(":", "_")
+        _DEBUG_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+
+        with NamedTemporaryFile(
+            mode="wb",
+            prefix=f"nao_input_{host_tag}_{port}_",
+            suffix=".wav",
+            dir=_DEBUG_AUDIO_DIR,
+            delete=False,
+        ) as tmp_file:
+            tmp_file.write(wav_bytes)
+            return Path(tmp_file.name)
+
     def _handle(self, conn: socket.socket, addr: tuple) -> None:
         """Process one client connection."""
         metrics = self.metrics_logger.next_turn() if self.metrics_logger else None
@@ -98,6 +118,9 @@ class TCPServer:
         if not wav_bytes:
             logger.warning("Empty request from %s, closing.", addr)
             return
+
+        debug_wav_path = self._save_debug_wav(wav_bytes, addr)
+        logger.info("Saved incoming WAV from %s to %s", addr, debug_wav_path)
 
         try:
             audio, sample_rate = self._wav_to_float32(wav_bytes)

@@ -1,6 +1,7 @@
 """Text-to-Speech implementation using Piper (CLI subprocess)."""
 
 import os
+from pathlib import Path
 import shutil
 import subprocess
 
@@ -47,9 +48,48 @@ class PiperTTS(BaseTTS):
         self.sample_rate = sample_rate
         self.espeak_data = espeak_data
 
+        os.environ["LD_LIBRARY_PATH"] = self._build_library_path(piper_libs)
+
+    @staticmethod
+    def _build_library_path(configured_dir: str) -> str:
+        """Assemble a robust LD_LIBRARY_PATH for the Piper runtime."""
+        piper_bin = shutil.which("piper")
+        candidates: list[str] = []
+
+        if configured_dir:
+            candidates.append(configured_dir)
+
+        if piper_bin:
+            bin_path = Path(piper_bin).resolve()
+            candidates.extend(
+                [
+                    str(bin_path.parent),
+                    str(bin_path.parent.parent / "lib"),
+                    str(bin_path.parent.parent / "piper"),
+                ]
+            )
+
+        candidates.extend(
+            [
+                str(Path.home() / ".local" / "lib"),
+                "/usr/local/lib",
+                "/usr/lib",
+            ]
+        )
+
         existing = os.environ.get("LD_LIBRARY_PATH", "")
-        paths = [p for p in [piper_libs, existing] if p]
-        os.environ["LD_LIBRARY_PATH"] = ":".join(paths)
+        if existing:
+            candidates.extend(existing.split(":"))
+
+        seen: set[str] = set()
+        resolved: list[str] = []
+        for path in candidates:
+            if not path or path in seen or not os.path.isdir(path):
+                continue
+            seen.add(path)
+            resolved.append(path)
+
+        return ":".join(resolved)
 
     def _build_cmd(self, extra_flags: list[str]) -> list[str]:
         cmd = ["piper", "--model", self.model_path]
