@@ -33,3 +33,6 @@ network:
   port: 50007            # UDP port (--mode server / --mode client)
   tcp_port: 50007        # TCP port (--mode tcp-server / scripts/client.sh)
   server_host: 127.0.0.1 # client: IP of the processing machine (UDP client)
+  streaming: false       # enable live UDP audio streaming on both client and server
+  streaming_min_chunk_s: 0.6
+  streaming_update_s: 0.3

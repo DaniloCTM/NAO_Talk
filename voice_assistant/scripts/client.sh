@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Configuração
+# Configuracao
 # ---------------------------------------------------------------------------
 SERVER_HOST="${1:-${SERVER_HOST:-10.0.69.12}}"
 SERVER_PORT="${2:-${SERVER_PORT:-50007}}"
@@ -15,77 +15,56 @@ ALSA_DEVICE="${ALSA_DEVICE:-default}"
 
 # VAD: threshold de amplitude para considerar fala (em %)
 SPEECH_THRESHOLD="${SPEECH_THRESHOLD:-2}"
-# Duração mínima de fala para iniciar gravação (segundos)
+# Duracao minima de fala para iniciar gravacao (segundos)
 SPEECH_START_DURATION="${SPEECH_START_DURATION:-0.1}"
-# Duração de silêncio para encerrar gravação (segundos)
+# Duracao de silencio para encerrar gravacao (segundos)
 SILENCE_DURATION="${SILENCE_DURATION:-1.5}"
-# Threshold de silêncio (em %) — geralmente igual ao de fala
+# Threshold de silencio (em %) -- geralmente igual ao de fala
 SILENCE_THRESHOLD="${SILENCE_THRESHOLD:-2}"
 
-TMP_IN="/tmp/va_input_$$.wav"
 TMP_OUT="/tmp/va_response_$$.wav"
 
 cleanup() {
-    rm -f "$TMP_IN" "$TMP_OUT"
+    rm -f "$TMP_OUT"
 }
 trap cleanup EXIT
 
 # ---------------------------------------------------------------------------
-# Dependências
+# Dependencias
 # ---------------------------------------------------------------------------
 check_dep() {
-    if ! command -v "$1" &>/dev/null; then
-        echo "ERRO: '$1' não encontrado. Instale com: sudo apt install $2" >&2
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "ERRO: '$1' nao encontrado. Instale com: sudo apt install $2" >&2
         exit 1
     fi
 }
 
 check_dep arecord alsa-utils
-check_dep aplay   alsa-utils
-check_dep sox     sox
-check_dep nc      netcat-openbsd
+check_dep aplay alsa-utils
+check_dep sox sox
+check_dep nc netcat-openbsd
 
 # ---------------------------------------------------------------------------
-# Funções
+# Funcoes
 # ---------------------------------------------------------------------------
 
 check_server() {
     nc -z -w 2 "$SERVER_HOST" "$SERVER_PORT" 2>/dev/null
 }
 
-record_audio() {
-    echo "Aguardando fala... (threshold: ${SPEECH_THRESHOLD}%, silêncio: ${SILENCE_DURATION}s)"
+record_and_send_receive() {
+    echo "Aguardando fala... (threshold: ${SPEECH_THRESHOLD}%, silencio: ${SILENCE_DURATION}s)"
+    echo "Transmitindo audio por pipe para ${SERVER_HOST}:${SERVER_PORT}"
 
-    # Watcher em background: avisa quando o arquivo de saída crescer além do
-    # cabeçalho WAV (44 bytes), o que indica que sox começou a gravar fala.
-    (
-        while true; do
-            local size
-            if [ -f "$TMP_IN" ]; then
-                size=$(wc -c < "$TMP_IN")
-            else
-                size=0
-            fi
-            if [ "$size" -gt 44 ]; then
-                echo "Fala detectada!"
-                break
-            fi
-            sleep 0.1
-        done
-    ) &
-    local WATCHER_PID=$!
-
-    # sox silence: aguarda fala e grava até detectar silêncio automaticamente.
-    #   silence 1 <dur_inicio> <thr_inicio>%  1 <dur_fim> <thr_fim>%
-    #   - 1 período acima de SPEECH_THRESHOLD% por SPEECH_START_DURATION s → inicia
-    #   - 1 período abaixo de SILENCE_THRESHOLD% por SILENCE_DURATION s    → encerra
-    { arecord \
-        -D "$ALSA_DEVICE" \
-        --format=S16_LE \
-        --rate="$SAMPLE_RATE" \
-        --channels="$CHANNELS" \
-        --quiet \
-        --file-type raw 2>/dev/null || true; } \
+    {
+        arecord \
+            -D "$ALSA_DEVICE" \
+            --format=S16_LE \
+            --rate="$SAMPLE_RATE" \
+            --channels="$CHANNELS" \
+            --quiet \
+            --file-type raw 2>/dev/null || true
+    } \
     | sox \
         --type raw \
         --rate "$SAMPLE_RATE" \
@@ -93,20 +72,13 @@ record_audio() {
         --bits "$BIT_DEPTH" \
         --encoding signed-integer \
         - \
-        "$TMP_IN" \
+        --type wav \
+        - \
         silence \
             1 "$SPEECH_START_DURATION" "${SPEECH_THRESHOLD}%" \
-            1 "$SILENCE_DURATION"      "${SILENCE_THRESHOLD}%" \
-        2>/dev/null
-
-    kill "$WATCHER_PID" 2>/dev/null || true
-    wait "$WATCHER_PID" 2>/dev/null || true
-
-    echo "Gravação finalizada"
-}
-
-send_and_receive() {
-    nc -N "$SERVER_HOST" "$SERVER_PORT" < "$TMP_IN" > "$TMP_OUT" 2>/dev/null
+            1 "$SILENCE_DURATION" "${SILENCE_THRESHOLD}%" \
+        2>/dev/null \
+    | nc -N "$SERVER_HOST" "$SERVER_PORT" > "$TMP_OUT" 2>/dev/null
 }
 
 play_response() {
@@ -119,13 +91,14 @@ now_ms() {
 }
 
 # ---------------------------------------------------------------------------
-# Inicialização
+# Inicializacao
 # ---------------------------------------------------------------------------
 
-echo "=== Assistente de Voz (cliente bash) ==="
+echo "=== Assistente de Voz (cliente bash TCP) ==="
 echo "Servidor: $SERVER_HOST:$SERVER_PORT"
 echo "Dispositivo ALSA: $ALSA_DEVICE"
-echo "VAD: início=${SPEECH_THRESHOLD}% por ${SPEECH_START_DURATION}s | silêncio=${SILENCE_THRESHOLD}% por ${SILENCE_DURATION}s"
+echo "VAD: inicio=${SPEECH_THRESHOLD}% por ${SPEECH_START_DURATION}s | silencio=${SILENCE_THRESHOLD}% por ${SILENCE_DURATION}s"
+echo "Modo de envio: WAV por pipe direto para o servidor TCP"
 
 echo -n "Verificando servidor... "
 if check_server; then
@@ -140,50 +113,32 @@ echo ""
 # ---------------------------------------------------------------------------
 
 while true; do
-    rm -f "$TMP_IN" "$TMP_OUT"
+    rm -f "$TMP_OUT"
 
     echo ""
     echo "=== Novo ciclo ==="
 
-    T_RECORD_START=$(now_ms)
+    T_CYCLE_START=$(now_ms)
 
-    if ! record_audio; then
-        echo "Erro na gravação"
+    if ! record_and_send_receive; then
+        echo "Erro de gravacao ou comunicacao com o servidor"
         continue
     fi
 
-    T_RECORD_END=$(now_ms)
-
-    if [ ! -s "$TMP_IN" ]; then
-        echo "Nenhum áudio capturado"
-        continue
-    fi
-
-    SIZE_IN=$(wc -c < "$TMP_IN")
-    RECORD_MS=$(( T_RECORD_END - T_RECORD_START ))
-
-    echo "Gravação concluída (${SIZE_IN} bytes, ${RECORD_MS}ms)"
-    echo "Enviando para servidor..."
-
-    T_NET_START=$(now_ms)
-
-    if ! send_and_receive; then
-        echo "Erro de comunicação com servidor"
-        continue
-    fi
-
-    T_NET_END=$(now_ms)
+    T_RESPONSE_END=$(now_ms)
 
     if [ ! -s "$TMP_OUT" ]; then
         echo "Sem resposta do servidor"
         continue
     fi
 
-    NET_MS=$(( T_NET_END - T_NET_START ))
-    echo "Resposta recebida (${NET_MS}ms)"
+    SIZE_OUT=$(wc -c < "$TMP_OUT")
+    PIPE_MS=$(( T_RESPONSE_END - T_CYCLE_START ))
+
+    echo "Resposta recebida (${SIZE_OUT} bytes, ${PIPE_MS}ms)"
 
     play_response
 
-    TOTAL_MS=$(( T_NET_END - T_RECORD_START ))
+    TOTAL_MS=$(( T_RESPONSE_END - T_CYCLE_START ))
     echo "Ciclo completo em ${TOTAL_MS}ms"
 done

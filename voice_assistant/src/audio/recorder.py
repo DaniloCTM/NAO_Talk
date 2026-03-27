@@ -43,19 +43,8 @@ class AudioRecorder:
         self.max_duration = max_duration
         self.chunk_size = int(chunk_duration * sample_rate)
 
-    def record(self, max_duration: float | None = None) -> np.ndarray:
-        """Record from the microphone until silence is detected after speech.
-
-        Waits for speech to begin, then records until the speaker stops.
-        Stops automatically after `silence_duration` seconds of silence
-        or after `max_duration` seconds regardless.
-
-        Args:
-            max_duration: Override for the instance-level max_duration cap.
-
-        Returns:
-            1-D float32 numpy array of audio samples at `sample_rate` Hz.
-        """
+    def record_stream(self, max_duration: float | None = None):
+        """Yield chunks from the microphone until silence ends the utterance."""
         cap = max_duration if max_duration is not None else self.max_duration
         max_samples = int(cap * self.sample_rate)
         silence_samples = int(self.silence_duration * self.sample_rate)
@@ -68,7 +57,6 @@ class AudioRecorder:
                 logger.warning("Audio stream status: %s", status)
             audio_queue.put(indata[:, 0].copy())
 
-        collected: list[np.ndarray] = []
         speech_started = False
         silent_samples = 0
         total_samples = 0
@@ -99,13 +87,14 @@ class AudioRecorder:
                     else:
                         continue
 
-                collected.append(chunk)
                 total_samples += len(chunk)
 
                 if is_speech:
                     silent_samples = 0
                 else:
                     silent_samples += len(chunk)
+
+                yield chunk
 
                 if silent_samples >= silence_samples:
                     logger.info("Silencio detectado, encerrando gravacao.")
@@ -115,9 +104,25 @@ class AudioRecorder:
                     logger.info("Limite maximo de gravacao atingido.")
                     break
 
+        logger.debug("Capturados %d samples (%.1fs).", total_samples, total_samples / self.sample_rate)
+
+    def record(self, max_duration: float | None = None) -> np.ndarray:
+        """Record from the microphone until silence is detected after speech.
+
+        Waits for speech to begin, then records until the speaker stops.
+        Stops automatically after `silence_duration` seconds of silence
+        or after `max_duration` seconds regardless.
+
+        Args:
+            max_duration: Override for the instance-level max_duration cap.
+
+        Returns:
+            1-D float32 numpy array of audio samples at `sample_rate` Hz.
+        """
+        collected = list(self.record_stream(max_duration=max_duration))
+
         if not collected:
             return np.array([], dtype=np.float32)
 
         audio = np.concatenate(collected)
-        logger.debug("Capturados %d samples (%.1fs).", len(audio), len(audio) / self.sample_rate)
         return audio

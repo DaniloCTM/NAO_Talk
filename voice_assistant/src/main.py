@@ -58,6 +58,11 @@ def _parse_args() -> argparse.Namespace:
         dest="server_host",
         help="[client] Server IP address (overrides config).",
     )
+    parser.add_argument(
+        "--streaming",
+        action="store_true",
+        help="Enable live UDP audio streaming with overlapped STT processing.",
+    )
     return parser.parse_args()
 
 
@@ -78,20 +83,24 @@ def main() -> None:
 
     audio_cfg = config.get("audio", {})
     net_cfg = config.get("network", {})
+    streaming_enabled = args.streaming or net_cfg.get("streaming", False)
 
     if args.mode == "client":
-        # Client only needs the recorder – no STT/LLM/TTS on this machine.
         from src.network.udp_client import UDPClient
 
         server_host = args.server_host or net_cfg.get("server_host", "127.0.0.1")
         port = args.port or net_cfg.get("port", 50007)
 
         recorder = _build_recorder(audio_cfg)
-        client = UDPClient(recorder=recorder, server_host=server_host, server_port=port)
+        client = UDPClient(
+            recorder=recorder,
+            server_host=server_host,
+            server_port=port,
+            streaming_enabled=streaming_enabled,
+        )
         client.run()
         return
 
-    # Both 'local' and 'server' modes require STT / LLM / TTS.
     from src.llm.openrouter_client import OpenRouterClient
     from src.stt.faster_whisper_stt import FasterWhisperSTT
     from src.tts.piper_tts import PiperTTS
@@ -136,6 +145,9 @@ def main() -> None:
             port=port,
             audio_sample_rate=audio_cfg.get("sample_rate", 16000),
             metrics_logger=MetricsLogger(),
+            streaming_enabled=streaming_enabled,
+            streaming_min_chunk_s=net_cfg.get("streaming_min_chunk_s", 0.6),
+            streaming_update_s=net_cfg.get("streaming_update_s", 0.3),
         )
         server.run()
     elif args.mode == "tcp-server":
@@ -154,7 +166,6 @@ def main() -> None:
         )
         server.run()
     else:
-        # local mode
         from src.pipeline.assistant_pipeline import AssistantPipeline
 
         recorder = _build_recorder(audio_cfg)

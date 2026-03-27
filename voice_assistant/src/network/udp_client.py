@@ -34,9 +34,11 @@ class UDPClient:
         recorder: AudioRecorder,
         server_host: str,
         server_port: int = 50007,
+        streaming_enabled: bool = False,
     ):
         self.recorder = recorder
         self.server_addr = (server_host, server_port)
+        self.streaming_enabled = streaming_enabled
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -56,6 +58,33 @@ class UDPClient:
 
         sock.sendto(pack(AUDIO_END, seq, b""), self.server_addr)
         logger.debug("Sent %d bytes of audio in %d packets", len(raw), seq)
+
+    def _send_audio_stream(self, sock: socket.socket) -> int:
+        """Send microphone audio incrementally while it is being recorded."""
+        seq = 0
+        sent_samples = 0
+
+        for chunk in self.recorder.record_stream():
+            raw = (chunk * 32768.0).clip(-32768, 32767).astype(np.int16).tobytes()
+            if not raw:
+                continue
+
+            offset = 0
+            while offset < len(raw):
+                packet = raw[offset: offset + MAX_CHUNK]
+                sock.sendto(pack(AUDIO_DATA, seq, packet), self.server_addr)
+                offset += MAX_CHUNK
+                seq += 1
+
+            sent_samples += len(chunk)
+
+        sock.sendto(pack(AUDIO_END, seq, b""), self.server_addr)
+        logger.debug(
+            "Sent %d samples of streaming audio in %d packets",
+            sent_samples,
+            seq,
+        )
+        return sent_samples
 
     def _receive_response(self, sock: socket.socket) -> tuple[bytes, int]:
         """Collect RESPONSE_DATA packets until RESPONSE_END.
@@ -112,13 +141,19 @@ class UDPClient:
         Returns:
             True if a full cycle completed, False if no speech was captured.
         """
-        audio = self.recorder.record()
-        if audio.size == 0:
-            logger.info("No speech detected, skipping.")
-            return False
-
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            self._send_audio(sock, audio)
+            if self.streaming_enabled:
+                sent_samples = self._send_audio_stream(sock)
+                if sent_samples == 0:
+                    logger.info("No speech detected, skipping.")
+                    return False
+            else:
+                audio = self.recorder.record()
+                if audio.size == 0:
+                    logger.info("No speech detected, skipping.")
+                    return False
+                self._send_audio(sock, audio)
+
             logger.info("Audio sent to server %s, waiting for response...", self.server_addr)
             raw_pcm, sample_rate = self._receive_response(sock)
 
