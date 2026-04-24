@@ -2,20 +2,25 @@ audio:
   sample_rate: 16000
   channels: 1
   speech_threshold: 0.02   # RMS minimo para considerar fala (0.0–1.0)
-  silence_duration: 1.5    # segundos de silencio para encerrar gravacao
+  silence_duration: 0.8    # segundos de silencio para encerrar gravacao
   max_duration: 30.0       # limite maximo de gravacao em segundos
 
 stt:
   model: small
   compute_type: int8
   language: pt
+  beam_size: 1
+  condition_on_previous_text: false
 
 llm:
   provider: openrouter
-  model: arcee-ai/trinity-large-preview:free
+  model: openai/gpt-4o-mini
   base_url: https://openrouter.ai/api/v1/chat/completions
+  timeout: 15
+  max_tokens: 48
+  temperature: 0.2
   system_prompt: >
-    Você é um assistente de voz.
+    Você é um assistente de voz chamado NAO.
     Responda sempre em português, de forma curta e direta, em no máximo duas frases.
     Nunca use emojis, markdown, listas ou formatação especial.
 
@@ -36,3 +41,6 @@ network:
   streaming: false       # enable live UDP audio streaming on both client and server
   streaming_min_chunk_s: 0.6
   streaming_update_s: 0.3
+  tcp_streaming: true
+  tcp_streaming_min_chunk_s: 0.3
+  tcp_streaming_update_s: 0.15

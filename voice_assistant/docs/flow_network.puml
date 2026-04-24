@@ -1,0 +1,41 @@
+@startuml
+title Voice Assistant - Fluxo Distribuido UDP/TCP
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor Usuario
+participant "Cliente Remoto\n(UDPClient ou scripts/client.sh)" as Client
+participant "Servidor\n(UDPServer/TCPServer)" as Server
+participant "FasterWhisperSTT" as STT
+participant "OpenRouterClient" as LLM
+participant "PiperTTS" as TTS
+
+Usuario -> Client : fala localmente
+Client -> Client : captura audio
+
+alt modo UDP streaming
+  Client -> Server : chunks AUDIO_DATA + AUDIO_END
+  Server -> STT : transcricao parcial durante recebimento
+else modo UDP simples
+  Client -> Server : audio completo em pacotes UDP
+else modo TCP
+  Client -> Server : WAV ou PCM via socket TCP
+end
+
+Server -> STT : transcribe(audio final)
+STT --> LLM : texto
+LLM -> LLM : generate()
+LLM --> TTS : resposta
+TTS -> TTS : synthesize_raw()
+
+alt resposta UDP
+  Server --> Client : RESPONSE_META + RESPONSE_DATA + RESPONSE_END
+else resposta TCP
+  Server --> Client : WAV
+end
+
+Client --> Usuario : reproduz audio recebido
+
+@enduml

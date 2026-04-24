@@ -1,0 +1,133 @@
+@startuml
+title Voice Assistant - Arquitetura Geral
+allowmixing
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Entrypoint" {
+  class "src.main" as Main {
+    +main()
+    +_parse_args()
+    +_build_recorder()
+  }
+}
+
+package "Core Pipeline" {
+  class "AssistantPipeline" as Pipeline {
+    +run()
+    +run_once()
+  }
+
+  class "MetricsLogger" as Metrics
+  class "TurnMetrics" as TurnMetrics
+}
+
+package "Audio" {
+  class "AudioRecorder" as Recorder {
+    +record()
+    +record_stream()
+  }
+
+  class "sounddevice" as SoundDeviceIn
+  class "sounddevice output" as SoundDeviceOut
+}
+
+package "STT" {
+  interface "BaseSTT" as BaseSTT
+  class "FasterWhisperSTT" as WhisperSTT {
+    +transcribe(audio)
+  }
+  class "WhisperModel\n(faster-whisper)" as WhisperModel
+}
+
+package "LLM" {
+  interface "BaseLLM" as BaseLLM
+  class "OpenRouterClient" as OpenRouter {
+    +generate(prompt)
+  }
+  database "OpenRouter API" as OpenRouterAPI
+}
+
+package "TTS" {
+  interface "BaseTTS" as BaseTTS
+  class "PiperTTS" as Piper {
+    +speak(text)
+    +synthesize_raw(text)
+    +speak_to_file(text, path)
+  }
+  component "Piper CLI" as PiperCLI
+}
+
+package "Network" {
+  class "UDPClient" as UDPClient
+  class "UDPServer" as UDPServer
+  class "TCPServer" as TCPServer
+  class "protocol.py" as Protocol
+}
+
+package "Config & Files" {
+  file "config/config.yaml" as Config
+  file ".env / OPENROUTER_API_KEY" as Env
+  file "logs/metrics.csv" as MetricsCsv
+  file "models/*.onnx" as VoiceModel
+}
+
+Main --> Config : load_config()
+Main --> Recorder : instancia
+Main --> WhisperSTT : instancia
+Main --> OpenRouter : instancia
+Main --> Piper : instancia
+Main --> Metrics : instancia
+
+Pipeline --> Recorder : captura audio
+Pipeline --> BaseSTT : transcribe()
+Pipeline --> BaseLLM : generate()
+Pipeline --> BaseTTS : speak()
+Pipeline --> Metrics : log()
+
+WhisperSTT ..|> BaseSTT
+OpenRouter ..|> BaseLLM
+Piper ..|> BaseTTS
+
+WhisperSTT --> WhisperModel : inferencia local CPU
+OpenRouter --> OpenRouterAPI : HTTP /chat/completions
+Piper --> PiperCLI : subprocess
+Piper --> VoiceModel : carrega voz
+
+Recorder --> SoundDeviceIn : microfone
+Piper --> SoundDeviceOut : reproduz audio
+
+OpenRouter --> Env : le API key
+Metrics --> TurnMetrics
+Metrics --> MetricsCsv : grava latencias
+
+UDPClient --> Recorder : record()/record_stream()
+UDPClient --> Protocol : AUDIO_DATA/AUDIO_END
+UDPServer --> Protocol : RESPONSE_DATA/END
+UDPServer --> BaseSTT
+UDPServer --> BaseLLM
+UDPServer --> Piper : synthesize_raw()
+TCPServer --> BaseSTT
+TCPServer --> BaseLLM
+TCPServer --> Piper : synthesize_raw()/speak_to_file()
+
+note right of Main
+Modos suportados:
+- local
+- server (UDP)
+- client (UDP)
+- tcp-server
+- tcp-stream-server
+end note
+
+note bottom of Pipeline
+Fluxo central:
+audio -> STT -> LLM -> TTS
+com metricas por turno
+end note
+
+@enduml

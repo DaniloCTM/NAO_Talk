@@ -8,6 +8,9 @@ server                – UDP server: receive audio → STT → LLM → TTS → 
 client                – UDP client: mic → send audio → receive TTS → speaker
 tcp-server            – TCP server: receive WAV → STT → LLM → TTS → send WAV back
                         (bash client using arecord + nc + aplay)
+tcp-stream-server     – TCP server: receive raw PCM stream → partial STT overlap
+                        → LLM → TTS → send WAV back
+                        (bash client using arecord + nc + aplay)
 
 Usage examples
 --------------
@@ -22,6 +25,9 @@ Usage examples
 
     # TCP server (bash client using scripts/client.sh)
     python -m src.main --mode tcp-server --host 0.0.0.0 --port 50007
+
+    # TCP streaming server (bash client using scripts/client.sh)
+    python -m src.main --mode tcp-stream-server --host 0.0.0.0 --port 50007
 """
 
 import argparse
@@ -37,7 +43,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Voice Assistant")
     parser.add_argument(
         "--mode",
-        choices=["local", "server", "client", "tcp-server"],
+        choices=["local", "server", "client", "tcp-server", "tcp-stream-server"],
         default="local",
         help="Operation mode (default: local)",
     )
@@ -71,7 +77,7 @@ def _build_recorder(audio_cfg: dict) -> AudioRecorder:
         sample_rate=audio_cfg.get("sample_rate", 16000),
         channels=audio_cfg.get("channels", 1),
         speech_threshold=audio_cfg.get("speech_threshold", 0.02),
-        silence_duration=audio_cfg.get("silence_duration", 1.5),
+        silence_duration=audio_cfg.get("silence_duration", 0.8),
         max_duration=audio_cfg.get("max_duration", 30.0),
     )
 
@@ -115,12 +121,17 @@ def main() -> None:
         model_size=stt_cfg.get("model", "small"),
         compute_type=stt_cfg.get("compute_type", "int8"),
         language=stt_cfg.get("language"),
+        beam_size=stt_cfg.get("beam_size", 5),
+        condition_on_previous_text=stt_cfg.get("condition_on_previous_text", True),
     )
 
     llm = OpenRouterClient(
-        model=llm_cfg.get("model", "mistralai/mistral-7b-instruct:free"),
+        model=llm_cfg.get("model", "openai/gpt-4o-mini"),
         api_key=api_keys.get("openrouter"),
         base_url=llm_cfg.get("base_url", "https://openrouter.ai/api/v1/chat/completions"),
+        timeout=llm_cfg.get("timeout", 15),
+        max_tokens=llm_cfg.get("max_tokens"),
+        temperature=llm_cfg.get("temperature"),
         system_prompt=llm_cfg.get("system_prompt", ""),
     )
 
@@ -163,6 +174,28 @@ def main() -> None:
             host=host,
             port=port,
             metrics_logger=MetricsLogger(),
+            input_format="wav",
+            audio_sample_rate=audio_cfg.get("sample_rate", 16000),
+        )
+        server.run()
+    elif args.mode == "tcp-stream-server":
+        from src.network.tcp_server import TCPServer
+
+        host = args.host or net_cfg.get("host", "0.0.0.0")
+        port = args.port or net_cfg.get("tcp_port", net_cfg.get("port", 50007))
+
+        server = TCPServer(
+            stt=stt,
+            llm=llm,
+            tts=tts,
+            host=host,
+            port=port,
+            metrics_logger=MetricsLogger(),
+            input_format="pcm_s16le",
+            audio_sample_rate=audio_cfg.get("sample_rate", 16000),
+            streaming_enabled=net_cfg.get("tcp_streaming", True),
+            streaming_min_chunk_s=net_cfg.get("tcp_streaming_min_chunk_s", 0.3),
+            streaming_update_s=net_cfg.get("tcp_streaming_update_s", 0.15),
         )
         server.run()
     else:

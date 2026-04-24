@@ -9,7 +9,7 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-_DEFAULT_MODEL = "mistralai/mistral-7b-instruct:free"
+_DEFAULT_MODEL = "openai/gpt-4o-mini"
 _API_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_SYSTEM_PROMPT = (
     "Você é um assistente de voz. "
@@ -26,7 +26,9 @@ class OpenRouterClient(BaseLLM):
         model: str = _DEFAULT_MODEL,
         api_key: str | None = None,
         base_url: str = _API_URL,
-        timeout: int = 30,
+        timeout: int = 15,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
         system_prompt: str = _DEFAULT_SYSTEM_PROMPT,
     ):
         """Initialize the OpenRouter client.
@@ -36,13 +38,24 @@ class OpenRouterClient(BaseLLM):
             api_key: API key. Falls back to OPENROUTER_API_KEY env var.
             base_url: OpenRouter API endpoint URL.
             timeout: HTTP request timeout in seconds.
+            max_tokens: Optional cap for generated tokens.
+            temperature: Optional sampling temperature.
             system_prompt: System message sent before every user turn.
         """
         self.model = model
         self.base_url = base_url
         self.timeout = timeout
+        self.max_tokens = max_tokens
+        self.temperature = temperature
         self.system_prompt = system_prompt
         self._api_key = api_key or os.getenv("OPENROUTER_API_KEY", "")
+        self._session = requests.Session()
+        self._session.headers.update(
+            {
+                "Authorization": f"Bearer {self._api_key}",
+                "Content-Type": "application/json",
+            }
+        )
 
         if not self._api_key:
             logger.warning("OPENROUTER_API_KEY is not set.")
@@ -59,10 +72,6 @@ class OpenRouterClient(BaseLLM):
         Raises:
             requests.HTTPError: If the API returns an error status code.
         """
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-        }
         messages = []
         if self.system_prompt:
             messages.append({"role": "system", "content": self.system_prompt})
@@ -71,11 +80,14 @@ class OpenRouterClient(BaseLLM):
             "model": self.model,
             "messages": messages,
         }
+        if self.max_tokens is not None:
+            payload["max_tokens"] = self.max_tokens
+        if self.temperature is not None:
+            payload["temperature"] = self.temperature
 
         logger.debug("Sending prompt to OpenRouter (model=%s).", self.model)
-        response = requests.post(
+        response = self._session.post(
             self.base_url,
-            headers=headers,
             json=payload,
             timeout=self.timeout,
         )

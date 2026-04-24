@@ -1,0 +1,28 @@
+@startuml
+title Voice Assistant - Fluxo Local
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor Usuario
+participant "AudioRecorder" as Recorder
+participant "FasterWhisperSTT" as STT
+participant "OpenRouterClient" as LLM
+participant "PiperTTS" as TTS
+participant "MetricsLogger" as Metrics
+
+loop enquanto ativo
+  Usuario -> Recorder : fala no microfone
+  Recorder -> Recorder : detecta fala/silencio (RMS)
+  Recorder --> STT : audio float32
+  STT -> STT : transcribe()
+  STT --> LLM : texto transcrito
+  LLM -> LLM : generate()
+  LLM --> TTS : resposta textual
+  TTS -> TTS : speak()
+  TTS --> Usuario : audio sintetizado
+  TTS -> Metrics : grava latencias
+end
+
+@enduml

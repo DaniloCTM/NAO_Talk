@@ -17,6 +17,8 @@ class FasterWhisperSTT(BaseSTT):
         model_size: str = "small",
         compute_type: str = "int8",
         language: str | None = None,
+        beam_size: int = 5,
+        condition_on_previous_text: bool = True,
     ):
         """Initialize and load the Whisper model.
 
@@ -24,8 +26,13 @@ class FasterWhisperSTT(BaseSTT):
             model_size: Whisper model variant (e.g. "tiny", "small", "medium").
             compute_type: Quantization type for CPU inference (e.g. "int8", "float32").
             language: BCP-47 language code to force, or None for auto-detection.
+            beam_size: Beam size used by the decoder.
+            condition_on_previous_text: Whether Whisper should use previous text
+                as context during decoding.
         """
         self.language = language
+        self.beam_size = beam_size
+        self.condition_on_previous_text = condition_on_previous_text
         logger.info("Loading Whisper model '%s' (compute_type=%s)...", model_size, compute_type)
         self._model = WhisperModel(model_size, device="cpu", compute_type=compute_type)
         logger.info("Whisper model loaded.")
@@ -42,7 +49,8 @@ class FasterWhisperSTT(BaseSTT):
         segments, info = self._model.transcribe(
             audio,
             language=self.language,
-            beam_size=5,
+            beam_size=self.beam_size,
+            condition_on_previous_text=self.condition_on_previous_text,
         )
         logger.debug("Detected language: %s (%.2f)", info.language, info.language_probability)
 
