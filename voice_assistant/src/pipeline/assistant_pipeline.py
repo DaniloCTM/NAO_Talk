@@ -62,7 +62,7 @@ class AssistantPipeline:
         logger.info("User said: %s", text)
 
         with timer() as t_llm:
-            response = self.llm.generate(text)
+            response = self.llm.generate(text, conversation_id=None)
         if metrics:
             metrics.llm_latency_s = t_llm[0]
             metrics.response_chars = len(response)

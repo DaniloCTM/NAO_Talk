@@ -1,0 +1,170 @@
+[
+  {
+    "id": "001",
+    "categoria": "saudacao",
+    "frase": "Olá",
+    "resposta_esperada": "saudação curta em português"
+  },
+  {
+    "id": "002",
+    "categoria": "identidade",
+    "frase": "Qual é o seu nome?",
+    "resposta_esperada": "dizer que é o assistente NAO"
+  },
+  {
+    "id": "003",
+    "categoria": "acao_tool",
+    "frase": "Levante-se",
+    "resposta_esperada": "confirmar que vai levantar"
+  },
+  {
+    "id": "004",
+    "categoria": "acao_tool",
+    "frase": "Pode sentar",
+    "resposta_esperada": "confirmar que vai sentar"
+  },
+  {
+    "id": "005",
+    "categoria": "acao_tool",
+    "frase": "Observe o ambiente",
+    "resposta_esperada": "confirmar que está observando"
+  },
+  {
+    "id": "006",
+    "categoria": "tempo",
+    "frase": "Que horas são?",
+    "resposta_esperada": "informar que não sabe ao certo ou responder de forma curta coerente"
+  },
+  {
+    "id": "007",
+    "categoria": "clima",
+    "frase": "Como está o clima hoje?",
+    "resposta_esperada": "responder que não tem acesso ao clima atual ou falar de forma curta coerente"
+  },
+  {
+    "id": "008",
+    "categoria": "pergunta_simples",
+    "frase": "Quanto é dois mais dois?",
+    "resposta_esperada": "quatro"
+  },
+  {
+    "id": "009",
+    "categoria": "idioma",
+    "frase": "Responda em português",
+    "resposta_esperada": "resposta curta em português"
+  },
+  {
+    "id": "010",
+    "categoria": "comando_composto",
+    "frase": "Levante e depois observe",
+    "resposta_esperada": "executar no máximo uma ação e responder curto"
+  },
+  {
+    "id": "011",
+    "categoria": "confirmacao",
+    "frase": "Você me ouviu?",
+    "resposta_esperada": "confirmação curta"
+  },
+  {
+    "id": "012",
+    "categoria": "ruido_sem_acao",
+    "frase": "Estou apenas testando o microfone",
+    "resposta_esperada": "resposta curta reconhecendo o teste"
+  },
+  {
+    "id": "013",
+    "categoria": "memoria",
+    "frase": "Meu nome é Danilo",
+    "resposta_esperada": "reconhecer ou confirmar o nome"
+  },
+  {
+    "id": "014",
+    "categoria": "memoria",
+    "frase": "Qual é o meu nome?",
+    "resposta_esperada": "Danilo"
+  },
+  {
+    "id": "015",
+    "categoria": "memoria",
+    "frase": "Guarde que minha cor favorita é azul",
+    "resposta_esperada": "confirmação curta"
+  },
+  {
+    "id": "016",
+    "categoria": "memoria",
+    "frase": "Qual é minha cor favorita?",
+    "resposta_esperada": "azul"
+  },
+  {
+    "id": "017",
+    "categoria": "contexto_acao",
+    "frase": "Levante-se",
+    "resposta_esperada": "confirmar que vai levantar"
+  },
+  {
+    "id": "018",
+    "categoria": "contexto_acao",
+    "frase": "O que você acabou de fazer?",
+    "resposta_esperada": "responder que acabou de levantar"
+  },
+  {
+    "id": "019",
+    "categoria": "contexto_acao",
+    "frase": "Agora sente",
+    "resposta_esperada": "confirmar que vai sentar"
+  },
+  {
+    "id": "020",
+    "categoria": "contexto_acao",
+    "frase": "E agora, o que você fez?",
+    "resposta_esperada": "responder que sentou"
+  },
+  {
+    "id": "021",
+    "categoria": "memoria_factual",
+    "frase": "Estou em um laboratório de robótica",
+    "resposta_esperada": "confirmação curta"
+  },
+  {
+    "id": "022",
+    "categoria": "memoria_factual",
+    "frase": "Onde eu estou?",
+    "resposta_esperada": "em um laboratório de robótica"
+  },
+  {
+    "id": "023",
+    "categoria": "frase_longa",
+    "frase": "Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto",
+    "resposta_esperada": "resposta curta coerente com o teste"
+  },
+  {
+    "id": "024",
+    "categoria": "numero",
+    "frase": "Anote o número quarenta e dois",
+    "resposta_esperada": "confirmação curta"
+  },
+  {
+    "id": "025",
+    "categoria": "numero",
+    "frase": "Qual número eu falei?",
+    "resposta_esperada": "quarenta e dois"
+  },
+  {
+    "id": "026",
+    "categoria": "fala_natural",
+    "frase": "Hum, deixa eu pensar, acho que você pode observar o ambiente agora",
+    "resposta_esperada": "confirmar que está observando"
+  },
+  {
+    "id": "027",
+    "categoria": "variacao_acao",
+    "frase": "NAO, sente por favor",
+    "resposta_esperada": "confirmar que vai sentar"
+  },
+  {
+    "id": "028",
+    "categoria": "variacao_acao",
+    "frase": "NAO, levanta agora",
+    "resposta_esperada": "confirmar que vai levantar"
+  }
+]

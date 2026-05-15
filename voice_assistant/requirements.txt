@@ -4,3 +4,4 @@ numpy
 requests
 pyyaml
 python-dotenv
+webrtcvad

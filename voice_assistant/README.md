@@ -75,6 +75,17 @@ python -m src.main
 O assistente ficará aguardando fala. Quando detectar voz, grava até o silêncio, transcreve, consulta o LLM e responde em voz.
 Para encerrar: `Ctrl+C`.
 
+### Gravar dataset de teste
+
+Para gravar um conjunto de áudios rotulados em `dataset_teste/`:
+
+```bash
+cd voice_assistant
+python3 scripts/record_test_dataset.py
+```
+
+O script usa as frases de `dataset_teste/prompts_default.json`, salva os WAVs em `dataset_teste/audio/` e atualiza `manifest.csv` e `manifest.jsonl` a cada gravação aceita.
+
 ---
 
 ## Configuração
@@ -83,7 +94,10 @@ Todos os parâmetros ficam em `config/config.yaml`:
 
 | Parâmetro | Descrição | Padrão |
 |---|---|---|
-| `audio.speech_threshold` | RMS mínimo para considerar fala (0.0–1.0) | `0.02` |
+| `audio.vad_mode` | Backend de VAD (`webrtc` recomendado, `rms` legado) | `webrtc` |
+| `audio.vad_aggressiveness` | Agressividade do WebRTC VAD (`0` a `3`) | `2` |
+| `audio.vad_frame_ms` | Tamanho do frame do WebRTC VAD | `30` |
+| `audio.speech_threshold` | RMS mínimo para considerar fala no modo `rms` (0.0–1.0) | `0.02` |
 | `audio.silence_duration` | Segundos de silêncio para encerrar gravação | `1.5` |
 | `audio.max_duration` | Limite máximo de gravação em segundos | `30.0` |
 | `stt.model` | Modelo Whisper (`tiny`, `small`, `medium`) | `small` |
@@ -94,10 +108,13 @@ Todos os parâmetros ficam em `config/config.yaml`:
 | `tts.model_path` | Caminho para o arquivo `.onnx` do Piper | `models/pt_BR-faber-medium.onnx` |
 | `tts.sample_rate` | Taxa de amostragem do modelo TTS (Hz) | `22050` |
 
-### Ajustando o threshold de silêncio
+### Ajustando a detecção de fala
+
+O padrão recomendado é `audio.vad_mode: webrtc`, que costuma detectar fala melhor sem aumentar a latência perceptível.
 
 Se o assistente estiver cortando a fala muito cedo, aumente `silence_duration`.
-Se estiver capturando ruído de fundo como fala, aumente `speech_threshold`.
+Se quiser uma detecção mais conservadora no modo `webrtc`, aumente `vad_aggressiveness`.
+Se estiver usando o fallback `rms` e o assistente captar ruído de fundo como fala, aumente `speech_threshold`.
 
 ---
 
@@ -134,7 +151,7 @@ voice_assistant/
 │   ├── pipeline/
 │   │   └── assistant_pipeline.py
 │   ├── audio/
-│   │   ├── recorder.py      # Captura com VAD por energia RMS
+│   │   ├── recorder.py      # Captura com WebRTC VAD e fallback RMS
 │   │   └── player.py
 │   ├── stt/
 │   │   ├── base_stt.py

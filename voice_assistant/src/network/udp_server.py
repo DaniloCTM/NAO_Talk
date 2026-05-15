@@ -28,6 +28,12 @@ logger = get_logger(__name__)
 _RECV_BUF = 65_507  # max UDP payload
 
 
+def _conversation_id_from_addr(addr: tuple) -> str:
+    """Build a stable conversation identifier from a client address."""
+    host, port = addr[:2]
+    return f"{host}:{port}"
+
+
 class UDPServer:
     """Listens for audio over UDP, runs STT → LLM → TTS, streams PCM back."""
 
@@ -278,7 +284,7 @@ class UDPServer:
         logger.info("User said: %s", text)
 
         with timer() as t_llm:
-            response = self.llm.generate(text)
+            response = self.llm.generate(text, conversation_id=_conversation_id_from_addr(client_addr))
         if metrics:
             metrics.llm_latency_s = t_llm[0]
             metrics.response_chars = len(response)

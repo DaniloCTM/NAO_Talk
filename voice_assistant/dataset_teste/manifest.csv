@@ -1,0 +1,27 @@
+id,categoria,frase,resposta_esperada,arquivo_audio,sample_rate,duracao_s
+003,acao_tool,Levante-se,confirmar que vai levantar,audio/003_acao_tool.wav,16000,2.940
+004,acao_tool,Pode sentar,confirmar que vai sentar,audio/004_acao_tool.wav,16000,2.010
+005,acao_tool,Observe o ambiente,confirmar que está observando,audio/005_acao_tool.wav,16000,3.180
+006,tempo,Que horas são?,informar que não sabe ao certo ou responder de forma curta coerente,audio/006_tempo.wav,16000,5.940
+007,clima,Como está o clima hoje?,responder que não tem acesso ao clima atual ou falar de forma curta coerente,audio/007_clima.wav,16000,2.760
+008,pergunta_simples,Quanto é dois mais dois?,quatro,audio/008_pergunta_simples.wav,16000,5.730
+009,idioma,Responda em português,resposta curta em português,audio/009_idioma.wav,16000,6.630
+010,comando_composto,Levante e depois observe,executar no máximo uma ação e responder curto,audio/010_comando_composto.wav,16000,5.790
+011,confirmacao,Você me ouviu?,confirmação curta,audio/011_confirmacao.wav,16000,5.610
+012,ruido_sem_acao,Estou apenas testando o microfone,resposta curta reconhecendo o teste,audio/012_ruido_sem_acao.wav,16000,5.640
+013,memoria,Meu nome é Danilo,reconhecer ou confirmar o nome,audio/013_memoria.wav,16000,1.860
+014,memoria,Qual é o meu nome?,Danilo,audio/014_memoria.wav,16000,1.770
+015,memoria,Guarde que minha cor favorita é azul,confirmação curta,audio/015_memoria.wav,16000,2.700
+016,memoria,Qual é minha cor favorita?,azul,audio/016_memoria.wav,16000,2.850
+017,contexto_acao,Levante-se,confirmar que vai levantar,audio/017_contexto_acao.wav,16000,1.560
+018,contexto_acao,O que você acabou de fazer?,responder que acabou de levantar,audio/018_contexto_acao.wav,16000,2.160
+019,contexto_acao,Agora sente,confirmar que vai sentar,audio/019_contexto_acao.wav,16000,1.680
+020,contexto_acao,"E agora, o que você fez?",responder que sentou,audio/020_contexto_acao.wav,16000,2.160
+021,memoria_factual,Estou em um laboratório de robótica,confirmação curta,audio/021_memoria_factual.wav,16000,5.550
+022,memoria_factual,Onde eu estou?,em um laboratório de robótica,audio/022_memoria_factual.wav,16000,2.430
+023,frase_longa,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto,resposta curta coerente com o teste,audio/023_frase_longa.wav,16000,6.180
+024,numero,Anote o número quarenta e dois,confirmação curta,audio/024_numero.wav,16000,2.610
+025,numero,Qual número eu falei?,quarenta e dois,audio/025_numero.wav,16000,1.920
+026,fala_natural,"Hum, deixa eu pensar, acho que você pode observar o ambiente agora",confirmar que está observando,audio/026_fala_natural.wav,16000,5.610
+027,variacao_acao,"NAO, sente por favor",confirmar que vai sentar,audio/027_variacao_acao.wav,16000,2.850
+028,variacao_acao,"NAO, levanta agora",confirmar que vai levantar,audio/028_variacao_acao.wav,16000,2.040

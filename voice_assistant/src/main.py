@@ -79,6 +79,9 @@ def _build_recorder(audio_cfg: dict) -> AudioRecorder:
         speech_threshold=audio_cfg.get("speech_threshold", 0.02),
         silence_duration=audio_cfg.get("silence_duration", 0.8),
         max_duration=audio_cfg.get("max_duration", 30.0),
+        vad_mode=audio_cfg.get("vad_mode", "webrtc"),
+        vad_aggressiveness=audio_cfg.get("vad_aggressiveness", 2),
+        vad_frame_ms=audio_cfg.get("vad_frame_ms", 30),
     )
 
 
@@ -118,7 +121,7 @@ def main() -> None:
     api_keys = config.get("api_keys", {})
 
     stt = FasterWhisperSTT(
-        model_size=stt_cfg.get("model", "small"),
+        model_size=stt_cfg.get("model", "medium"),
         compute_type=stt_cfg.get("compute_type", "int8"),
         language=stt_cfg.get("language"),
         beam_size=stt_cfg.get("beam_size", 5),

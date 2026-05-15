@@ -28,10 +28,10 @@ class FakeSTT:
 
 class FakeLLM:
     def __init__(self):
-        self.prompts: list[str] = []
+        self.calls: list[tuple[str, str | None]] = []
 
-    def generate(self, prompt: str) -> str:
-        self.prompts.append(prompt)
+    def generate(self, prompt: str, conversation_id: str | None = None) -> str:
+        self.calls.append((prompt, conversation_id))
         return f"reply:{prompt}"
 
 
@@ -129,7 +129,7 @@ class TCPServerTest(unittest.TestCase):
             self.assertFalse(thread.is_alive())
 
             self.assertEqual(stt.calls, [4800, 7200])
-            self.assertEqual(llm.prompts, ["text-7200"])
+            self.assertEqual(llm.calls, [("text-7200", "local:12345")])
             self.assertEqual(tts.inputs, ["reply:text-7200"])
 
             with wave.open(io.BytesIO(conn.sent_bytes), "rb") as wf:
@@ -171,6 +171,7 @@ class TCPServerTest(unittest.TestCase):
         thread.join(timeout=2.0)
         self.assertFalse(thread.is_alive())
         self.assertEqual(stt.calls, [3200])
+        self.assertEqual(llm.calls, [("text-3200", "local:12345")])
 
         with wave.open(io.BytesIO(conn.sent_bytes), "rb") as wf:
             self.assertEqual(wf.getframerate(), tts.sample_rate)

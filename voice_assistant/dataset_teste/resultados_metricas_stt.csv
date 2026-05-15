@@ -1,0 +1,27 @@
+id,categoria,frase_esperada,transcricao_stt,exact_match,stt_latency_s,audio_duration_s,audio_path
+003,acao_tool,Levante-se,Levante!,False,1.6488699149995227,2.94,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/003_acao_tool.wav
+004,acao_tool,Pode sentar,Pode sentar.,True,1.4134243130029063,2.01,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/004_acao_tool.wav
+005,acao_tool,Observe o ambiente,Observe o ambiente!,True,1.389390327000001,3.18,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/005_acao_tool.wav
+006,tempo,Que horas são?,Que horas são?,True,1.5069110740005272,5.94,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/006_tempo.wav
+007,clima,Como está o clima hoje?,Como está o clima hoje?,True,1.8150055799997062,2.76,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/007_clima.wav
+008,pergunta_simples,Quanto é dois mais dois?,quanto é 2 mais 2?,False,1.3560171689969138,5.73,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/008_pergunta_simples.wav
+009,idioma,Responda em português,Respondo em português.,False,1.4410777450029855,6.63,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/009_idioma.wav
+010,comando_composto,Levante e depois observe,Levante e depois observe.,True,1.4505407550022937,5.79,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/010_comando_composto.wav
+011,confirmacao,Você me ouviu?,Você me ouviu?,True,1.2906798269978026,5.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/011_confirmacao.wav
+012,ruido_sem_acao,Estou apenas testando o microfone,Estou apenas testando o microfone.,True,1.2380346079953597,5.64,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/012_ruido_sem_acao.wav
+013,memoria,Meu nome é Danilo,Meu nome é Danilo.,True,1.1859673879953334,1.86,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/013_memoria.wav
+014,memoria,Qual é o meu nome?,Qual é o seu nome?,False,1.2334430619957857,1.77,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/014_memoria.wav
+015,memoria,Guarde que minha cor favorita é azul,Guarde que minha cor favorita é azul.,True,1.2611482159991283,2.7,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/015_memoria.wav
+016,memoria,Qual é minha cor favorita?,Qual é a minha favorita?,False,1.4945016669953475,2.85,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/016_memoria.wav
+017,contexto_acao,Levante-se,Levante!,False,1.3736069869992207,1.56,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/017_contexto_acao.wav
+018,contexto_acao,O que você acabou de fazer?,o que você acabou de fazer.,True,1.353317478999088,2.16,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/018_contexto_acao.wav
+019,contexto_acao,Agora sente,Agora sente.,True,1.9918790779993287,1.68,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/019_contexto_acao.wav
+020,contexto_acao,"E agora, o que você fez?","E agora, o que você fez?",True,1.7546280179958558,2.16,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/020_contexto_acao.wav
+021,memoria_factual,Estou em um laboratório de robótica,Estou em um laboratório de robótica.,True,1.4548671980010113,5.55,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/021_memoria_factual.wav
+022,memoria_factual,Onde eu estou?,onde eu estou.,True,1.5992948339990107,2.43,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/022_memoria_factual.wav
+023,frase_longa,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto.,True,1.530411968997214,6.18,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/023_frase_longa.wav
+024,numero,Anote o número quarenta e dois,a noite número 42.,False,1.2646656910001184,2.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/024_numero.wav
+025,numero,Qual número eu falei?,Qual o número eu falei?,False,1.414938168003573,1.92,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/025_numero.wav
+026,fala_natural,"Hum, deixa eu pensar, acho que você pode observar o ambiente agora","Um, deixa eu pensar. Acho que você pode observar o ambiente agora.",False,1.4019438199975411,5.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/026_fala_natural.wav
+027,variacao_acao,"NAO, sente por favor","NAL, sente por favor.",False,1.2748618670011638,2.85,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/027_variacao_acao.wav
+028,variacao_acao,"NAO, levanta agora","Now, levanta agora!",False,1.3530591090020607,2.04,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/028_variacao_acao.wav

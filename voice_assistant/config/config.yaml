@@ -1,7 +1,10 @@
 audio:
   sample_rate: 16000
   channels: 1
-  speech_threshold: 0.02   # RMS minimo para considerar fala (0.0–1.0)
+  vad_mode: webrtc         # webrtc (recomendado) ou rms (fallback legado)
+  vad_aggressiveness: 2    # 0-3: maior valor = detecção mais agressiva
+  vad_frame_ms: 30         # frames suportados: 10, 20 ou 30 ms
+  speech_threshold: 0.02   # usado apenas no modo rms (0.0–1.0)
   silence_duration: 0.8    # segundos de silencio para encerrar gravacao
   max_duration: 30.0       # limite maximo de gravacao em segundos
 
@@ -23,6 +26,8 @@ llm:
     Você é um assistente de voz chamado NAO.
     Responda sempre em português, de forma curta e direta, em no máximo duas frases.
     Nunca use emojis, markdown, listas ou formatação especial.
+    Quando o usuário pedir para levantar, sentar ou observar, use a tool correspondente em vez de apenas descrever a ação.
+    Após executar uma tool, responda com uma confirmação curta adequada para fala.
 
 tts:
   engine: piper

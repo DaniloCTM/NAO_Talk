@@ -36,6 +36,12 @@ _DEBUG_AUDIO_DIR = Path("/tmp")
 _PCM_SAMPLE_WIDTH_BYTES = 2
 
 
+def _conversation_id_from_addr(addr: tuple) -> str:
+    """Build a stable conversation identifier from a client address."""
+    host, port = addr[:2]
+    return f"{host}:{port}"
+
+
 @dataclass
 class _RequestAudio:
     """Decoded request payload plus metadata needed by the pipeline."""
@@ -288,7 +294,7 @@ class TCPServer:
                 logger.info("User said: %s", text)
 
                 with timer() as t_llm:
-                    response = self.llm.generate(text)
+                    response = self.llm.generate(text, conversation_id=_conversation_id_from_addr(addr))
                 if metrics:
                     metrics.llm_latency_s = t_llm[0]
                     metrics.response_chars = len(response)
