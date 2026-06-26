@@ -62,7 +62,11 @@ class AssistantPipeline:
         logger.info("User said: %s", text)
 
         with timer() as t_llm:
-            response = self.llm.generate(text, conversation_id=None)
+            try:
+                response = self.llm.generate(text, conversation_id=None)
+            except Exception as exc:
+                logger.exception("LLM generation failed: %s", exc)
+                response = "Desculpe, ocorreu um erro ao processar sua solicitação."
         if metrics:
             metrics.llm_latency_s = t_llm[0]
             metrics.response_chars = len(response)

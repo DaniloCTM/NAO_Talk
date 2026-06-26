@@ -14,6 +14,7 @@ request EOF while still reading the WAV response from the server.
 """
 
 import io
+import json
 from dataclasses import dataclass
 from pathlib import Path
 import socket
@@ -34,6 +35,9 @@ logger = get_logger(__name__)
 _RECV_BUF = 65_536
 _DEBUG_AUDIO_DIR = Path("/tmp")
 _PCM_SAMPLE_WIDTH_BYTES = 2
+_METADATA_MAGIC = b"VA1\n"
+_METADATA_SEPARATOR = b"\n\n"
+_MAX_METADATA_BYTES = 8_192
 
 
 def _conversation_id_from_addr(addr: tuple) -> str:
@@ -52,6 +56,7 @@ class _RequestAudio:
     debug_suffix: str
     partial_text: str = ""
     stt_used_partial: bool = False
+    metadata: dict | None = None
 
 
 class TCPServer:
@@ -151,21 +156,53 @@ class TCPServer:
             chunks.append(chunk)
         return b"".join(chunks)
 
+    @staticmethod
+    def _extract_metadata_prefix(raw_bytes: bytes) -> tuple[dict | None, bytes]:
+        """Extract an optional JSON metadata preamble from the request bytes."""
+        if not raw_bytes.startswith(_METADATA_MAGIC):
+            return None, raw_bytes
+
+        separator_index = raw_bytes.find(_METADATA_SEPARATOR, len(_METADATA_MAGIC))
+        if separator_index == -1:
+            raise ValueError("Incomplete metadata preamble received from client.")
+
+        metadata_bytes = raw_bytes[len(_METADATA_MAGIC):separator_index]
+        if len(metadata_bytes) > _MAX_METADATA_BYTES:
+            raise ValueError("Metadata preamble exceeds supported size.")
+
+        metadata = json.loads(metadata_bytes.decode("utf-8"))
+        payload = raw_bytes[separator_index + len(_METADATA_SEPARATOR):]
+        return metadata, payload
+
     def _receive_wav_request(self, conn: socket.socket) -> _RequestAudio:
         """Receive a legacy WAV request."""
-        wav_bytes = self._read_all(conn)
+        raw_request = self._read_all(conn)
+        metadata, wav_bytes = self._extract_metadata_prefix(raw_request)
         if not wav_bytes:
-            return _RequestAudio(b"", np.array([], dtype=np.float32), self.audio_sample_rate, ".wav")
+            return _RequestAudio(
+                b"",
+                np.array([], dtype=np.float32),
+                self.audio_sample_rate,
+                ".wav",
+                metadata=metadata,
+            )
 
         audio, sample_rate = self._wav_to_float32(wav_bytes)
-        return _RequestAudio(wav_bytes, audio, sample_rate, ".wav")
+        return _RequestAudio(wav_bytes, audio, sample_rate, ".wav", metadata=metadata)
 
     def _receive_pcm_request(self, conn: socket.socket) -> _RequestAudio:
         """Receive a raw PCM request, optionally overlapping partial STT."""
         if not self.streaming_enabled:
-            raw_bytes = self._read_all(conn)
+            raw_request = self._read_all(conn)
+            metadata, raw_bytes = self._extract_metadata_prefix(raw_request)
             audio = self._pcm16_to_float32(raw_bytes)
-            return _RequestAudio(raw_bytes, audio, self.audio_sample_rate, ".s16le")
+            return _RequestAudio(
+                raw_bytes,
+                audio,
+                self.audio_sample_rate,
+                ".s16le",
+                metadata=metadata,
+            )
 
         raw_buffer = bytearray()
         buffer_lock = threading.Lock()
@@ -175,6 +212,9 @@ class TCPServer:
         latest_text = ""
         latest_samples = 0
         transcription_error: Exception | None = None
+        metadata: dict | None = None
+        metadata_parsed = False
+        preamble_buffer = bytearray()
 
         min_chunk_samples = max(1, int(self.streaming_min_chunk_s * self.audio_sample_rate))
         update_step_samples = max(1, int(self.streaming_update_s * self.audio_sample_rate))
@@ -222,9 +262,41 @@ class TCPServer:
             chunk = conn.recv(_RECV_BUF)
             if not chunk:
                 break
+            if not metadata_parsed:
+                preamble_buffer.extend(chunk)
+                if len(preamble_buffer) >= len(_METADATA_MAGIC) and not preamble_buffer.startswith(_METADATA_MAGIC):
+                    with buffer_lock:
+                        raw_buffer.extend(preamble_buffer)
+                    preamble_buffer.clear()
+                    metadata_parsed = True
+                    new_audio_event.set()
+                    continue
+
+                separator_index = preamble_buffer.find(_METADATA_SEPARATOR, len(_METADATA_MAGIC))
+                if separator_index != -1:
+                    metadata, payload = self._extract_metadata_prefix(bytes(preamble_buffer))
+                    with buffer_lock:
+                        raw_buffer.extend(payload)
+                    preamble_buffer.clear()
+                    metadata_parsed = True
+                    new_audio_event.set()
+                    continue
+
+                if len(preamble_buffer) > _MAX_METADATA_BYTES + len(_METADATA_MAGIC) + len(_METADATA_SEPARATOR):
+                    raise ValueError("Metadata preamble exceeds supported size.")
+                continue
+
             with buffer_lock:
                 raw_buffer.extend(chunk)
             new_audio_event.set()
+
+        if not metadata_parsed and preamble_buffer:
+            if preamble_buffer.startswith(_METADATA_MAGIC):
+                metadata, raw_bytes = self._extract_metadata_prefix(bytes(preamble_buffer))
+            else:
+                metadata, raw_bytes = None, bytes(preamble_buffer)
+            with buffer_lock:
+                raw_buffer.extend(raw_bytes)
 
         end_event.set()
         new_audio_event.set()
@@ -247,6 +319,7 @@ class TCPServer:
             ".s16le",
             partial_text=partial_text,
             stt_used_partial=stt_used_partial,
+            metadata=metadata,
         )
 
     def _receive_request(self, conn: socket.socket) -> _RequestAudio:
@@ -274,6 +347,10 @@ class TCPServer:
 
         debug_path = self._save_debug_request(request.raw_bytes, addr, request.debug_suffix)
         logger.info("Saved incoming request from %s to %s", addr, debug_path)
+        if request.metadata is not None:
+            logger.info("Received client metadata from %s: %s", addr, request.metadata)
+        else:
+            logger.warning("No client metadata received from %s.", addr)
 
         if metrics:
             metrics.audio_duration_s = len(request.audio) / request.sample_rate
@@ -294,7 +371,14 @@ class TCPServer:
                 logger.info("User said: %s", text)
 
                 with timer() as t_llm:
-                    response = self.llm.generate(text, conversation_id=_conversation_id_from_addr(addr))
+                    try:
+                        response = self.llm.generate(
+                            text,
+                            conversation_id=_conversation_id_from_addr(addr),
+                        )
+                    except Exception as exc:
+                        logger.exception("LLM generation failed for %s: %s", addr, exc)
+                        response = "Desculpe, ocorreu um erro ao processar sua solicitação."
                 if metrics:
                     metrics.llm_latency_s = t_llm[0]
                     metrics.response_chars = len(response)

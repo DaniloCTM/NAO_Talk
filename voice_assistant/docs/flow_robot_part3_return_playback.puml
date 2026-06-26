@@ -1,0 +1,32 @@
+@startuml
+title Parte 3 - Retorno do Audio e Reproducao no Robo
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam participantPadding 18
+
+participant "Servidor\n(UDPServer)" as Server
+participant "Rede UDP" as Net
+participant "Cliente no Robo\n(UDPClient)" as Client
+participant "Alto-falante do Robo\n(sounddevice)" as Speaker
+actor Usuario
+
+alt erro de reconhecimento
+  Server -> Net : ERROR("No speech detected.")
+  Net -> Client : mensagem de erro
+  Client -> Client : descarta resposta vazia
+else resposta em audio
+  Server -> Net : RESPONSE_META(sample_rate)
+  loop para cada chunk de audio
+    Server -> Net : RESPONSE_DATA(seq, payload)
+  end
+  Server -> Net : RESPONSE_END
+
+  Net -> Client : metadados + chunks de audio
+  Client -> Client : reordena chunks e remonta PCM
+  Client -> Speaker : sd.play(audio, sample_rate)
+  Speaker --> Usuario : audio reproduzido no robo
+end
+
+@enduml

@@ -1,6 +1,6 @@
 """Tool registry for assistant actions."""
 
-from src.tools.actions import observar, sentar, levanta
+from src.tools.actions import acender_led, apagar_led, bateria, observar, sentar, levanta
 from src.tools.registry import TOOL_DEFINITIONS, TOOL_REGISTRY
 
 __all__ = [
@@ -9,4 +9,7 @@ __all__ = [
     "levanta",
     "sentar",
     "observar",
+    "bateria",
+    "acender_led",
+    "apagar_led",
 ]

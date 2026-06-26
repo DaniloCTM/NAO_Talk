@@ -16,11 +16,12 @@ _DEFAULT_MODEL = "openai/gpt-4o-mini"
 _API_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_CONTEXT_TURNS = 6
 _DEFAULT_CONVERSATION_ID = "__default__"
+_FALLBACK_RESPONSE = "Estou sem acesso ao serviço de resposta no momento."
 _DEFAULT_SYSTEM_PROMPT = (
     "Você é um assistente de voz chamado NAO. "
     "Responda sempre em português, de forma curta e direta, em no máximo duas frases. "
     "Nunca use emojis, markdown, listas ou formatação especial. "
-    "Quando o usuário pedir para levantar, sentar ou observar, use a tool correspondente em vez de apenas descrever a ação. "
+    "Quando o usuário pedir para levantar, sentar, observar ou consultar a bateria, use a tool correspondente em vez de apenas descrever a ação. "
     "Após executar uma tool, responda com uma confirmação curta adequada para fala."
 )
 
@@ -91,7 +92,11 @@ class OpenRouterClient(BaseLLM):
         current_user_message = {"role": "user", "content": prompt}
         messages.append(current_user_message)
 
-        first_message = self._request_message(messages)
+        try:
+            first_message = self._request_message(messages)
+        except requests.RequestException as exc:
+            logger.exception("OpenRouter request failed: %s", exc)
+            return _FALLBACK_RESPONSE
         tool_calls = first_message.get("tool_calls") or []
 
         if not tool_calls:
@@ -128,7 +133,11 @@ class OpenRouterClient(BaseLLM):
             tool_result_messages.append(tool_result_message)
             messages.append(tool_result_message)
 
-        final_message = self._request_message(messages)
+        try:
+            final_message = self._request_message(messages)
+        except requests.RequestException as exc:
+            logger.exception("OpenRouter request after tool call failed: %s", exc)
+            return _FALLBACK_RESPONSE
         text = self._extract_text(final_message) or "Pronto."
         self._append_turn(
             conversation_key,

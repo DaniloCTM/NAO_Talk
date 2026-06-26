@@ -1,0 +1,36 @@
+@startuml
+title Parte 1 - Captura de Fala e Envio ao Servidor
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam participantPadding 18
+
+actor Usuario
+participant "Microfone do Robo\n(AudioRecorder/InputStream)" as Mic
+participant "VAD\n(WebRTC ou RMS)" as VAD
+participant "Cliente no Robo\n(UDPClient)" as Client
+participant "Rede UDP" as Net
+participant "Servidor\n(UDPServer)" as Server
+
+Usuario -> Mic : fala comando/pergunta
+Mic -> VAD : envia frames de audio
+
+loop enquanto a fala esta ativa
+  VAD -> VAD : detecta inicio/fim de fala
+  alt frame contem fala
+    VAD --> Client : chunk float32
+    Client -> Client : converte para PCM int16
+    Client -> Net : AUDIO_DATA(seq, payload)
+    Net -> Server : entrega pacote UDP
+  else silencio antes da fala
+    VAD -> VAD : continua aguardando
+  end
+end
+
+VAD --> Client : encerra captura apos silencio
+Client -> Net : AUDIO_END
+Net -> Server : fim do stream
+Server -> Server : reordena pacotes e monta audio final
+
+@enduml

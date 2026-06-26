@@ -284,7 +284,14 @@ class UDPServer:
         logger.info("User said: %s", text)
 
         with timer() as t_llm:
-            response = self.llm.generate(text, conversation_id=_conversation_id_from_addr(client_addr))
+            try:
+                response = self.llm.generate(
+                    text,
+                    conversation_id=_conversation_id_from_addr(client_addr),
+                )
+            except Exception as exc:
+                logger.exception("LLM generation failed for %s: %s", client_addr, exc)
+                response = "Desculpe, ocorreu um erro ao processar sua solicitação."
         if metrics:
             metrics.llm_latency_s = t_llm[0]
             metrics.response_chars = len(response)
