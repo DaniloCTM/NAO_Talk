@@ -1,27 +1,25 @@
-id,categoria,frase,resposta_esperada,arquivo_audio,sample_rate,duracao_s
-003,acao_tool,Levante-se,confirmar que vai levantar,audio/003_acao_tool.wav,16000,2.940
-004,acao_tool,Pode sentar,confirmar que vai sentar,audio/004_acao_tool.wav,16000,2.010
-005,acao_tool,Observe o ambiente,confirmar que está observando,audio/005_acao_tool.wav,16000,3.180
-006,tempo,Que horas são?,informar que não sabe ao certo ou responder de forma curta coerente,audio/006_tempo.wav,16000,5.940
-007,clima,Como está o clima hoje?,responder que não tem acesso ao clima atual ou falar de forma curta coerente,audio/007_clima.wav,16000,2.760
-008,pergunta_simples,Quanto é dois mais dois?,quatro,audio/008_pergunta_simples.wav,16000,5.730
-009,idioma,Responda em português,resposta curta em português,audio/009_idioma.wav,16000,6.630
-010,comando_composto,Levante e depois observe,executar no máximo uma ação e responder curto,audio/010_comando_composto.wav,16000,5.790
-011,confirmacao,Você me ouviu?,confirmação curta,audio/011_confirmacao.wav,16000,5.610
-012,ruido_sem_acao,Estou apenas testando o microfone,resposta curta reconhecendo o teste,audio/012_ruido_sem_acao.wav,16000,5.640
-013,memoria,Meu nome é Danilo,reconhecer ou confirmar o nome,audio/013_memoria.wav,16000,1.860
-014,memoria,Qual é o meu nome?,Danilo,audio/014_memoria.wav,16000,1.770
-015,memoria,Guarde que minha cor favorita é azul,confirmação curta,audio/015_memoria.wav,16000,2.700
-016,memoria,Qual é minha cor favorita?,azul,audio/016_memoria.wav,16000,2.850
-017,contexto_acao,Levante-se,confirmar que vai levantar,audio/017_contexto_acao.wav,16000,1.560
-018,contexto_acao,O que você acabou de fazer?,responder que acabou de levantar,audio/018_contexto_acao.wav,16000,2.160
-019,contexto_acao,Agora sente,confirmar que vai sentar,audio/019_contexto_acao.wav,16000,1.680
-020,contexto_acao,"E agora, o que você fez?",responder que sentou,audio/020_contexto_acao.wav,16000,2.160
-021,memoria_factual,Estou em um laboratório de robótica,confirmação curta,audio/021_memoria_factual.wav,16000,5.550
-022,memoria_factual,Onde eu estou?,em um laboratório de robótica,audio/022_memoria_factual.wav,16000,2.430
-023,frase_longa,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto,resposta curta coerente com o teste,audio/023_frase_longa.wav,16000,6.180
-024,numero,Anote o número quarenta e dois,confirmação curta,audio/024_numero.wav,16000,2.610
-025,numero,Qual número eu falei?,quarenta e dois,audio/025_numero.wav,16000,1.920
-026,fala_natural,"Hum, deixa eu pensar, acho que você pode observar o ambiente agora",confirmar que está observando,audio/026_fala_natural.wav,16000,5.610
-027,variacao_acao,"NAO, sente por favor",confirmar que vai sentar,audio/027_variacao_acao.wav,16000,2.850
-028,variacao_acao,"NAO, levanta agora",confirmar que vai levantar,audio/028_variacao_acao.wav,16000,2.040
+id,categoria,frase,resposta_esperada,keyword_esperada,tools_esperadas,arquivo_audio,sample_rate,duracao_s
+001,tool_bateria,Como está a sua bateria?,informar o estado da bateria,bateria,bateria,audio/001_tool_bateria.wav,16000,2.160
+002,tool_bateria,Qual é o nível de carga do NAO?,informar o estado da bateria,bateria,bateria,audio/002_tool_bateria.wav,16000,3.300
+003,tool_bateria,O robô está carregando?,informar o estado da bateria,bateria,bateria,audio/003_tool_bateria.wav,16000,2.190
+004,tool_acender_led,Acenda o LED do peito,confirmar que acendeu o LED do peito em azul,led|azul,acender_led,audio/004_tool_acender_led.wav,16000,2.430
+005,tool_apagar_led,Apague o LED do peito,confirmar que apagou o LED do peito,led|apag,apagar_led,audio/005_tool_apagar_led.wav,16000,3.030
+006,tool_acender_led,Ligue a luz do peito,confirmar que acendeu o LED do peito em azul,led|azul,acender_led,audio/006_tool_acender_led.wav,16000,2.730
+007,tool_apagar_led,Desligue a luz do peito,confirmar que apagou o LED do peito,led|apag,apagar_led,audio/007_tool_apagar_led.wav,16000,2.970
+008,tool_acender_olhos,Acenda os olhos,confirmar que acendeu os olhos em azul,olhos|azul,acender_olhos,audio/008_tool_acender_olhos.wav,16000,2.880
+009,tool_apagar_olhos,Apague os olhos,confirmar que apagou os olhos,olhos|apag,apagar_olhos,audio/009_tool_apagar_olhos.wav,16000,2.730
+010,tool_acender_olhos,Ligue as luzes dos olhos,confirmar que acendeu os olhos em azul,olhos|azul,acender_olhos,audio/010_tool_acender_olhos.wav,16000,3.150
+011,tool_apagar_olhos,Desligue as luzes dos olhos,confirmar que apagou os olhos,olhos|apag,apagar_olhos,audio/011_tool_apagar_olhos.wav,16000,3.270
+012,tool_cabeca_esquerda,Mova a cabeça para a esquerda,confirmar que moveu a cabeça para a esquerda,esquerda,mover_cabeca_esquerda,audio/012_tool_cabeca_esquerda.wav,16000,3.240
+013,tool_cabeca_direita,Mova a cabeça para a direita,confirmar que moveu a cabeça para a direita,direita,mover_cabeca_direita,audio/013_tool_cabeca_direita.wav,16000,3.240
+014,tool_centralizar_cabeca,Centralize a cabeça,confirmar que centralizou a cabeça,central,centralizar_cabeca,audio/014_tool_centralizar_cabeca.wav,16000,2.790
+015,tool_cabeca_esquerda,Vire a cabeça para a esquerda,confirmar que moveu a cabeça para a esquerda,esquerda,mover_cabeca_esquerda,audio/015_tool_cabeca_esquerda.wav,16000,2.700
+016,tool_cabeca_direita,Olhe para a direita,confirmar que moveu a cabeça para a direita,direita,mover_cabeca_direita,audio/016_tool_cabeca_direita.wav,16000,2.760
+017,tool_centralizar_cabeca,Volte a cabeça para o centro,confirmar que centralizou a cabeça,central,centralizar_cabeca,audio/017_tool_centralizar_cabeca.wav,16000,2.880
+018,tool_composta_luzes,Acenda o LED do peito e os olhos,executar as ações pedidas e responder de forma curta,led|olhos,acender_led|acender_olhos,audio/018_tool_composta_luzes.wav,16000,3.570
+019,tool_composta_luzes,Apague o LED do peito e os olhos,executar as ações pedidas e responder de forma curta,led|olhos|apag,apagar_led|apagar_olhos,audio/019_tool_composta_luzes.wav,16000,3.120
+020,tool_composta_cabeca,Mova a cabeça para a esquerda e depois centralize,executar as ações pedidas e responder de forma curta,esquerda|central,mover_cabeca_esquerda|centralizar_cabeca,audio/020_tool_composta_cabeca.wav,16000,3.270
+021,tool_composta_cabeca,Mova a cabeça para a direita e depois centralize,executar as ações pedidas e responder de forma curta,direita|central,mover_cabeca_direita|centralizar_cabeca,audio/021_tool_composta_cabeca.wav,16000,4.230
+022,tool_variacao_led,Ative a luz do peito,confirmar que acendeu o LED do peito em azul,led|azul,acender_led,audio/022_tool_variacao_led.wav,16000,2.370
+023,tool_variacao_bateria,Me diga a carga da bateria,informar o estado da bateria,bateria,bateria,audio/023_tool_variacao_bateria.wav,16000,2.400
+024,tool_variacao_cabeca,Centralize sua cabeça agora,confirmar que centralizou a cabeça,central,centralizar_cabeca,audio/024_tool_variacao_cabeca.wav,16000,3.120

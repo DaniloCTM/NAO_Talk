@@ -18,7 +18,7 @@ class FakeRecorder:
 
 class FakeSTT:
     def transcribe(self, audio):
-        return "pode sentar"
+        return "como está a bateria"
 
 
 class FakeLLM:
@@ -27,7 +27,7 @@ class FakeLLM:
 
     def generate(self, prompt: str, conversation_id: str | None = None) -> str:
         self.calls.append((prompt, conversation_id))
-        return "Sentando agora."
+        return "Bateria em 80%."
 
 
 class FakeTTS:
@@ -52,8 +52,8 @@ class AssistantPipelineCompatibilityTest(unittest.TestCase):
         result = pipeline.run_once()
 
         self.assertTrue(result)
-        self.assertEqual(llm.calls, [("pode sentar", None)])
-        self.assertEqual(tts.inputs, ["Sentando agora."])
+        self.assertEqual(llm.calls, [("como está a bateria", None)])
+        self.assertEqual(tts.inputs, ["Bateria em 80%."])
 
 
 if __name__ == "__main__":

@@ -1,170 +1,194 @@
 [
   {
     "id": "001",
-    "categoria": "saudacao",
-    "frase": "Olá",
-    "resposta_esperada": "saudação curta em português"
+    "categoria": "tool_bateria",
+    "frase": "Como está a sua bateria?",
+    "resposta_esperada": "informar o estado da bateria",
+    "tools_esperadas": "bateria",
+    "keyword_esperada": "bateria"
   },
   {
     "id": "002",
-    "categoria": "identidade",
-    "frase": "Qual é o seu nome?",
-    "resposta_esperada": "dizer que é o assistente NAO"
+    "categoria": "tool_bateria",
+    "frase": "Qual é o nível de carga do NAO?",
+    "resposta_esperada": "informar o estado da bateria",
+    "tools_esperadas": "bateria",
+    "keyword_esperada": "bateria"
   },
   {
     "id": "003",
-    "categoria": "acao_tool",
-    "frase": "Levante-se",
-    "resposta_esperada": "confirmar que vai levantar"
+    "categoria": "tool_bateria",
+    "frase": "O robô está carregando?",
+    "resposta_esperada": "informar o estado da bateria",
+    "tools_esperadas": "bateria",
+    "keyword_esperada": "bateria"
   },
   {
     "id": "004",
-    "categoria": "acao_tool",
-    "frase": "Pode sentar",
-    "resposta_esperada": "confirmar que vai sentar"
+    "categoria": "tool_acender_led",
+    "frase": "Acenda o LED do peito",
+    "resposta_esperada": "confirmar que acendeu o LED do peito em azul",
+    "tools_esperadas": "acender_led",
+    "keyword_esperada": "led|azul"
   },
   {
     "id": "005",
-    "categoria": "acao_tool",
-    "frase": "Observe o ambiente",
-    "resposta_esperada": "confirmar que está observando"
+    "categoria": "tool_apagar_led",
+    "frase": "Apague o LED do peito",
+    "resposta_esperada": "confirmar que apagou o LED do peito",
+    "tools_esperadas": "apagar_led",
+    "keyword_esperada": "led|apag"
   },
   {
     "id": "006",
-    "categoria": "tempo",
-    "frase": "Que horas são?",
-    "resposta_esperada": "informar que não sabe ao certo ou responder de forma curta coerente"
+    "categoria": "tool_acender_led",
+    "frase": "Ligue a luz do peito",
+    "resposta_esperada": "confirmar que acendeu o LED do peito em azul",
+    "tools_esperadas": "acender_led",
+    "keyword_esperada": "led|azul"
   },
   {
     "id": "007",
-    "categoria": "clima",
-    "frase": "Como está o clima hoje?",
-    "resposta_esperada": "responder que não tem acesso ao clima atual ou falar de forma curta coerente"
+    "categoria": "tool_apagar_led",
+    "frase": "Desligue a luz do peito",
+    "resposta_esperada": "confirmar que apagou o LED do peito",
+    "tools_esperadas": "apagar_led",
+    "keyword_esperada": "led|apag"
   },
   {
     "id": "008",
-    "categoria": "pergunta_simples",
-    "frase": "Quanto é dois mais dois?",
-    "resposta_esperada": "quatro"
+    "categoria": "tool_acender_olhos",
+    "frase": "Acenda os olhos",
+    "resposta_esperada": "confirmar que acendeu os olhos em azul",
+    "tools_esperadas": "acender_olhos",
+    "keyword_esperada": "olhos|azul"
   },
   {
     "id": "009",
-    "categoria": "idioma",
-    "frase": "Responda em português",
-    "resposta_esperada": "resposta curta em português"
+    "categoria": "tool_apagar_olhos",
+    "frase": "Apague os olhos",
+    "resposta_esperada": "confirmar que apagou os olhos",
+    "tools_esperadas": "apagar_olhos",
+    "keyword_esperada": "olhos|apag"
   },
   {
     "id": "010",
-    "categoria": "comando_composto",
-    "frase": "Levante e depois observe",
-    "resposta_esperada": "executar no máximo uma ação e responder curto"
+    "categoria": "tool_acender_olhos",
+    "frase": "Ligue as luzes dos olhos",
+    "resposta_esperada": "confirmar que acendeu os olhos em azul",
+    "tools_esperadas": "acender_olhos",
+    "keyword_esperada": "olhos|azul"
   },
   {
     "id": "011",
-    "categoria": "confirmacao",
-    "frase": "Você me ouviu?",
-    "resposta_esperada": "confirmação curta"
+    "categoria": "tool_apagar_olhos",
+    "frase": "Desligue as luzes dos olhos",
+    "resposta_esperada": "confirmar que apagou os olhos",
+    "tools_esperadas": "apagar_olhos",
+    "keyword_esperada": "olhos|apag"
   },
   {
     "id": "012",
-    "categoria": "ruido_sem_acao",
-    "frase": "Estou apenas testando o microfone",
-    "resposta_esperada": "resposta curta reconhecendo o teste"
+    "categoria": "tool_cabeca_esquerda",
+    "frase": "Mova a cabeça para a esquerda",
+    "resposta_esperada": "confirmar que moveu a cabeça para a esquerda",
+    "tools_esperadas": "mover_cabeca_esquerda",
+    "keyword_esperada": "esquerda"
   },
   {
     "id": "013",
-    "categoria": "memoria",
-    "frase": "Meu nome é Danilo",
-    "resposta_esperada": "reconhecer ou confirmar o nome"
+    "categoria": "tool_cabeca_direita",
+    "frase": "Mova a cabeça para a direita",
+    "resposta_esperada": "confirmar que moveu a cabeça para a direita",
+    "tools_esperadas": "mover_cabeca_direita",
+    "keyword_esperada": "direita"
   },
   {
     "id": "014",
-    "categoria": "memoria",
-    "frase": "Qual é o meu nome?",
-    "resposta_esperada": "Danilo"
+    "categoria": "tool_centralizar_cabeca",
+    "frase": "Centralize a cabeça",
+    "resposta_esperada": "confirmar que centralizou a cabeça",
+    "tools_esperadas": "centralizar_cabeca",
+    "keyword_esperada": "central"
   },
   {
     "id": "015",
-    "categoria": "memoria",
-    "frase": "Guarde que minha cor favorita é azul",
-    "resposta_esperada": "confirmação curta"
+    "categoria": "tool_cabeca_esquerda",
+    "frase": "Vire a cabeça para a esquerda",
+    "resposta_esperada": "confirmar que moveu a cabeça para a esquerda",
+    "tools_esperadas": "mover_cabeca_esquerda",
+    "keyword_esperada": "esquerda"
   },
   {
     "id": "016",
-    "categoria": "memoria",
-    "frase": "Qual é minha cor favorita?",
-    "resposta_esperada": "azul"
+    "categoria": "tool_cabeca_direita",
+    "frase": "Olhe para a direita",
+    "resposta_esperada": "confirmar que moveu a cabeça para a direita",
+    "tools_esperadas": "mover_cabeca_direita",
+    "keyword_esperada": "direita"
   },
   {
     "id": "017",
-    "categoria": "contexto_acao",
-    "frase": "Levante-se",
-    "resposta_esperada": "confirmar que vai levantar"
+    "categoria": "tool_centralizar_cabeca",
+    "frase": "Volte a cabeça para o centro",
+    "resposta_esperada": "confirmar que centralizou a cabeça",
+    "tools_esperadas": "centralizar_cabeca",
+    "keyword_esperada": "central"
   },
   {
     "id": "018",
-    "categoria": "contexto_acao",
-    "frase": "O que você acabou de fazer?",
-    "resposta_esperada": "responder que acabou de levantar"
+    "categoria": "tool_composta_luzes",
+    "frase": "Acenda o LED do peito e os olhos",
+    "resposta_esperada": "executar as ações pedidas e responder de forma curta",
+    "tools_esperadas": "acender_led|acender_olhos",
+    "keyword_esperada": "led|olhos"
   },
   {
     "id": "019",
-    "categoria": "contexto_acao",
-    "frase": "Agora sente",
-    "resposta_esperada": "confirmar que vai sentar"
+    "categoria": "tool_composta_luzes",
+    "frase": "Apague o LED do peito e os olhos",
+    "resposta_esperada": "executar as ações pedidas e responder de forma curta",
+    "tools_esperadas": "apagar_led|apagar_olhos",
+    "keyword_esperada": "led|olhos|apag"
   },
   {
     "id": "020",
-    "categoria": "contexto_acao",
-    "frase": "E agora, o que você fez?",
-    "resposta_esperada": "responder que sentou"
+    "categoria": "tool_composta_cabeca",
+    "frase": "Mova a cabeça para a esquerda e depois centralize",
+    "resposta_esperada": "executar as ações pedidas e responder de forma curta",
+    "tools_esperadas": "mover_cabeca_esquerda|centralizar_cabeca",
+    "keyword_esperada": "esquerda|central"
   },
   {
     "id": "021",
-    "categoria": "memoria_factual",
-    "frase": "Estou em um laboratório de robótica",
-    "resposta_esperada": "confirmação curta"
+    "categoria": "tool_composta_cabeca",
+    "frase": "Mova a cabeça para a direita e depois centralize",
+    "resposta_esperada": "executar as ações pedidas e responder de forma curta",
+    "tools_esperadas": "mover_cabeca_direita|centralizar_cabeca",
+    "keyword_esperada": "direita|central"
   },
   {
     "id": "022",
-    "categoria": "memoria_factual",
-    "frase": "Onde eu estou?",
-    "resposta_esperada": "em um laboratório de robótica"
+    "categoria": "tool_variacao_led",
+    "frase": "Ative a luz do peito",
+    "resposta_esperada": "confirmar que acendeu o LED do peito em azul",
+    "tools_esperadas": "acender_led",
+    "keyword_esperada": "led|azul"
   },
   {
     "id": "023",
-    "categoria": "frase_longa",
-    "frase": "Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto",
-    "resposta_esperada": "resposta curta coerente com o teste"
+    "categoria": "tool_variacao_bateria",
+    "frase": "Me diga a carga da bateria",
+    "resposta_esperada": "informar o estado da bateria",
+    "tools_esperadas": "bateria",
+    "keyword_esperada": "bateria"
   },
   {
     "id": "024",
-    "categoria": "numero",
-    "frase": "Anote o número quarenta e dois",
-    "resposta_esperada": "confirmação curta"
-  },
-  {
-    "id": "025",
-    "categoria": "numero",
-    "frase": "Qual número eu falei?",
-    "resposta_esperada": "quarenta e dois"
-  },
-  {
-    "id": "026",
-    "categoria": "fala_natural",
-    "frase": "Hum, deixa eu pensar, acho que você pode observar o ambiente agora",
-    "resposta_esperada": "confirmar que está observando"
-  },
-  {
-    "id": "027",
-    "categoria": "variacao_acao",
-    "frase": "NAO, sente por favor",
-    "resposta_esperada": "confirmar que vai sentar"
-  },
-  {
-    "id": "028",
-    "categoria": "variacao_acao",
-    "frase": "NAO, levanta agora",
-    "resposta_esperada": "confirmar que vai levantar"
+    "categoria": "tool_variacao_cabeca",
+    "frase": "Centralize sua cabeça agora",
+    "resposta_esperada": "confirmar que centralizou a cabeça",
+    "tools_esperadas": "centralizar_cabeca",
+    "keyword_esperada": "central"
   }
 ]

@@ -9,18 +9,12 @@ from src.tools.actions import (
     centralizar_cabeca,
     mover_cabeca_direita,
     mover_cabeca_esquerda,
-    observar,
-    sentar,
-    levanta,
 )
 from src.tools.registry import TOOL_DEFINITIONS, TOOL_REGISTRY
 
 __all__ = [
     "TOOL_DEFINITIONS",
     "TOOL_REGISTRY",
-    "levanta",
-    "sentar",
-    "observar",
     "bateria",
     "acender_led",
     "apagar_led",

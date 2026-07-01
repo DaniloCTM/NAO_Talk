@@ -10,10 +10,12 @@ from pathlib import Path
 import statistics
 import sys
 import time
+from typing import Callable
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
+import src.llm.openrouter_client as openrouter_client_module
 from src.llm.openrouter_client import OpenRouterClient
 from src.tts.piper_tts import PiperTTS
 from src.utils.config_loader import load_config
@@ -44,6 +46,18 @@ def load_manifest(manifest_path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(file))
 
 
+_TOOL_STUB_RESPONSES = {
+    "bateria": "Bateria em 75%, e sem carregamento.",
+    "acender_led": "LED do peito aceso em azul.",
+    "apagar_led": "LED do peito apagado.",
+    "acender_olhos": "Olhos acesos em azul.",
+    "apagar_olhos": "Olhos apagados.",
+    "mover_cabeca_esquerda": "Cabeça movida para a esquerda.",
+    "mover_cabeca_direita": "Cabeça movida para a direita.",
+    "centralizar_cabeca": "Cabeça centralizada.",
+}
+
+
 def percentile(values: list[float], pct: float) -> float:
     if not values:
         return 0.0
@@ -70,6 +84,10 @@ def summarize(values: list[float]) -> dict[str, float]:
 
 
 def conversation_id_for_row(row: dict[str, str]) -> str:
+    explicit_group = row.get("grupo_conversa", "").strip()
+    if explicit_group:
+        return explicit_group
+
     row_id = row["id"]
     if row_id in {"013", "014", "015", "016"}:
         return "dataset-memoria"
@@ -83,6 +101,10 @@ def conversation_id_for_row(row: dict[str, str]) -> str:
 
 
 def keyword_expectation(row: dict[str, str]) -> str | None:
+    explicit_keyword = row.get("keyword_esperada", "").strip()
+    if explicit_keyword:
+        return explicit_keyword
+
     row_id = row["id"]
     keyword_map = {
         "003": "levant",
@@ -109,9 +131,35 @@ def keyword_match(response: str, expected_keyword: str | None) -> bool | None:
         return None
 
     normalized = response.casefold()
+    if "|" in expected_keyword:
+        return all(part.strip().casefold() in normalized for part in expected_keyword.split("|") if part.strip())
     if expected_keyword == "quarenta e dois":
         return "quarenta e dois" in normalized or "42" in normalized
     return expected_keyword in normalized
+
+
+def expected_tools(row: dict[str, str]) -> list[str]:
+    raw = row.get("tools_esperadas", "").strip()
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split("|") if part.strip()]
+
+
+def tool_call_match(expected: list[str], actual: list[str]) -> bool:
+    return expected == actual
+
+
+def build_tracking_registry(called_tools: list[str]) -> dict[str, Callable[[], str]]:
+    registry: dict[str, Callable[[], str]] = {}
+
+    for tool_name, response_text in _TOOL_STUB_RESPONSES.items():
+        def _tool(name: str = tool_name, response: str = response_text) -> str:
+            called_tools.append(name)
+            return response
+
+        registry[tool_name] = _tool
+
+    return registry
 
 
 def write_results_csv(results_path: Path, rows: list[dict[str, object]]) -> None:
@@ -121,6 +169,9 @@ def write_results_csv(results_path: Path, rows: list[dict[str, object]]) -> None
         "conversation_id",
         "frase",
         "resposta_esperada",
+        "tools_esperadas",
+        "tools_chamadas",
+        "tool_match",
         "resposta_modelo",
         "keyword_esperada",
         "keyword_match",
@@ -167,6 +218,9 @@ def build_markdown_report(
     keyword_hits = sum(1 for row in verifiable_rows if row["keyword_match"] is True)
     keyword_total = len(verifiable_rows)
     keyword_rate = (keyword_hits / keyword_total * 100.0) if keyword_total else 0.0
+    tool_hits = sum(1 for row in results if row["tool_match"] is True)
+    tool_total = len(results)
+    tool_rate = (tool_hits / tool_total * 100.0) if tool_total else 0.0
 
     lines: list[str] = []
     lines.append("# Relatório de Métricas - LLM e TTS")
@@ -198,28 +252,31 @@ def build_markdown_report(
     lines.append("")
     lines.append(f"- Média de caracteres por resposta: `{statistics.mean(chars_values):.1f}`")
     lines.append(f"- Média de palavras por resposta: `{statistics.mean(words_values):.1f}`")
+    lines.append(f"- Acurácia de tool calling: `{tool_hits}/{tool_total}` (`{tool_rate:.1f}%`)")
     lines.append(f"- Acurácia heurística por palavra-chave: `{keyword_hits}/{keyword_total}` (`{keyword_rate:.1f}%`)")
     lines.append("")
     lines.append("## Critério heurístico")
     lines.append("")
-    lines.append("A coluna `keyword_match` abaixo só é calculada para amostras cuja resposta esperada tem um alvo textual verificável, como `Danilo`, `azul`, `quatro`, `levantar` ou `sentar`. Para os demais casos, ela fica como `n/a`.")
+    lines.append("A coluna `keyword_match` abaixo só é calculada para amostras cuja resposta esperada tem um alvo textual verificável, como `bateria`, `azul`, `esquerda`, `direita` ou `central`. Para os demais casos, ela fica como `n/a`.")
     lines.append("")
     lines.append("## Resultados por amostra")
     lines.append("")
-    lines.append("| ID | Categoria | Frase | Esperado | Resposta do modelo | keyword_match | LLM (s) | TTS (s) | Total (s) | Áudio TTS (s) | RTF |")
-    lines.append("|---|---|---|---|---|---|---:|---:|---:|---:|---:|")
+    lines.append("| ID | Categoria | Frase | Tools esperadas | Tools chamadas | tool_match | Esperado | Resposta do modelo | keyword_match | LLM (s) | TTS (s) | Total (s) | Áudio TTS (s) | RTF |")
+    lines.append("|---|---|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|")
     for row in results:
         keyword_value = row["keyword_match"]
         if keyword_value is None:
             keyword_label = "n/a"
         else:
             keyword_label = "ok" if keyword_value else "falhou"
+        tool_label = "ok" if row["tool_match"] else "falhou"
         lines.append(
-            f"| {row['id']} | {row['categoria']} | {row['frase']} | {row['resposta_esperada']} | {row['resposta_modelo']} | {keyword_label} | {fmt(float(row['llm_latency_s']))} | {fmt(float(row['tts_latency_s']))} | {fmt(float(row['total_latency_s']))} | {fmt(float(row['tts_audio_duration_s']))} | {fmt(float(row['tts_rtf']))} |"
+            f"| {row['id']} | {row['categoria']} | {row['frase']} | {row['tools_esperadas']} | {row['tools_chamadas']} | {tool_label} | {row['resposta_esperada']} | {row['resposta_modelo']} | {keyword_label} | {fmt(float(row['llm_latency_s']))} | {fmt(float(row['tts_latency_s']))} | {fmt(float(row['total_latency_s']))} | {fmt(float(row['tts_audio_duration_s']))} | {fmt(float(row['tts_rtf']))} |"
         )
     lines.append("")
     lines.append("## Observações")
     lines.append("")
+    lines.append("- Para medir tool calling, as tools foram substituídas por stubs locais que apenas registram a chamada e retornam um texto sintético.")
     lines.append("- As amostras de contexto foram avaliadas em sessões compartilhadas por bloco semântico para preservar memória conversacional.")
     lines.append("- As métricas de geração cobrem latência e um cheque heurístico simples de conteúdo, não uma avaliação semântica completa.")
     lines.append("- O TTS foi medido com `synthesize_raw`, sem playback, então a latência aqui representa síntese e não reprodução no alto-falante.")
@@ -255,40 +312,50 @@ def main() -> int:
     )
 
     results: list[dict[str, object]] = []
-    for row in manifest_rows:
-        conversation_id = conversation_id_for_row(row)
+    original_registry = openrouter_client_module.TOOL_REGISTRY
+    try:
+        for row in manifest_rows:
+            conversation_id = conversation_id_for_row(row)
+            called_tools: list[str] = []
+            openrouter_client_module.TOOL_REGISTRY = build_tracking_registry(called_tools)
 
-        t0 = time.perf_counter()
-        response_text = llm.generate(row["frase"], conversation_id=conversation_id)
-        llm_latency_s = time.perf_counter() - t0
+            t0 = time.perf_counter()
+            response_text = llm.generate(row["frase"], conversation_id=conversation_id)
+            llm_latency_s = time.perf_counter() - t0
 
-        t1 = time.perf_counter()
-        raw_pcm = tts.synthesize_raw(response_text)
-        tts_latency_s = time.perf_counter() - t1
+            t1 = time.perf_counter()
+            raw_pcm = tts.synthesize_raw(response_text)
+            tts_latency_s = time.perf_counter() - t1
 
-        tts_audio_duration_s = len(raw_pcm) / 2 / tts.sample_rate if raw_pcm else 0.0
-        tts_rtf = (tts_latency_s / tts_audio_duration_s) if tts_audio_duration_s > 0 else 0.0
-        expected_keyword = keyword_expectation(row)
+            tts_audio_duration_s = len(raw_pcm) / 2 / tts.sample_rate if raw_pcm else 0.0
+            tts_rtf = (tts_latency_s / tts_audio_duration_s) if tts_audio_duration_s > 0 else 0.0
+            expected_keyword = keyword_expectation(row)
+            expected_tool_names = expected_tools(row)
 
-        results.append(
-            {
-                "id": row["id"],
-                "categoria": row["categoria"],
-                "conversation_id": conversation_id,
-                "frase": row["frase"],
-                "resposta_esperada": row["resposta_esperada"],
-                "resposta_modelo": response_text,
-                "keyword_esperada": expected_keyword or "",
-                "keyword_match": keyword_match(response_text, expected_keyword),
-                "llm_latency_s": llm_latency_s,
-                "tts_latency_s": tts_latency_s,
-                "total_latency_s": llm_latency_s + tts_latency_s,
-                "response_chars": len(response_text),
-                "response_words": len(response_text.split()),
-                "tts_audio_duration_s": tts_audio_duration_s,
-                "tts_rtf": tts_rtf,
-            }
-        )
+            results.append(
+                {
+                    "id": row["id"],
+                    "categoria": row["categoria"],
+                    "conversation_id": conversation_id,
+                    "frase": row["frase"],
+                    "resposta_esperada": row["resposta_esperada"],
+                    "tools_esperadas": "|".join(expected_tool_names),
+                    "tools_chamadas": "|".join(called_tools),
+                    "tool_match": tool_call_match(expected_tool_names, called_tools),
+                    "resposta_modelo": response_text,
+                    "keyword_esperada": expected_keyword or "",
+                    "keyword_match": keyword_match(response_text, expected_keyword),
+                    "llm_latency_s": llm_latency_s,
+                    "tts_latency_s": tts_latency_s,
+                    "total_latency_s": llm_latency_s + tts_latency_s,
+                    "response_chars": len(response_text),
+                    "response_words": len(response_text.split()),
+                    "tts_audio_duration_s": tts_audio_duration_s,
+                    "tts_rtf": tts_rtf,
+                }
+            )
+    finally:
+        openrouter_client_module.TOOL_REGISTRY = original_registry
 
     write_results_csv(results_path, results)
     report = build_markdown_report(

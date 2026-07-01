@@ -10,7 +10,7 @@ participant "Servidor\n(UDPServer)" as Server
 participant "STT\n(FasterWhisperSTT)" as STT
 participant "LLM\n(OpenRouterClient)" as LLM
 participant "Historico de Conversa\n(_history por conversation_id)" as Memory
-participant "Tools\n(levanta/sentar/observar)" as Tools
+participant "Tools\n(bateria/leds/olhos/cabeca)" as Tools
 participant "TTS\n(PiperTTS)" as TTS
 
 opt streaming habilitado no servidor
@@ -38,7 +38,7 @@ else fala reconhecida
   alt modelo responde sem tool call
     LLM --> Server : resposta textual final
   else modelo solicita acao
-    LLM -> Tools : executa levanta()/sentar()/observar()
+    LLM -> Tools : executa tool registrada
     Tools --> LLM : resultado textual da tool
     LLM -> Memory : anexa user + assistant(tool_call) + tool
     LLM -> LLM : segunda chamada para gerar resposta final curta

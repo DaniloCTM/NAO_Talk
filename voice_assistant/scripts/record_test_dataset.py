@@ -66,6 +66,12 @@ def load_prompts(prompts_path: Path) -> list[dict]:
     return prompts
 
 
+def _serialize_manifest_value(value: object) -> str:
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False)
+    return str(value)
+
+
 def ensure_dataset_layout(dataset_dir: Path) -> tuple[Path, Path, Path]:
     audio_dir = dataset_dir / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
@@ -92,19 +98,16 @@ def load_existing_rows(manifest_csv: Path) -> list[dict]:
 
 
 def write_manifests(manifest_csv: Path, manifest_jsonl: Path, rows: list[dict]) -> None:
-    fieldnames = [
-        "id",
-        "categoria",
-        "frase",
-        "resposta_esperada",
-        "arquivo_audio",
-        "sample_rate",
-        "duracao_s",
-    ]
+    base_fields = ["id", "categoria", "frase", "resposta_esperada"]
+    recording_fields = ["arquivo_audio", "sample_rate", "duracao_s"]
+    extra_fields = sorted({key for row in rows for key in row.keys()} - set(base_fields) - set(recording_fields))
+    fieldnames = [*base_fields, *extra_fields, *recording_fields]
+
     with manifest_csv.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        for row in rows:
+            writer.writerow({key: _serialize_manifest_value(row.get(key, "")) for key in fieldnames})
 
     with manifest_jsonl.open("w", encoding="utf-8") as file:
         for row in rows:
@@ -194,6 +197,7 @@ def main() -> int:
                 "categoria": item["categoria"],
                 "frase": item["frase"],
                 "resposta_esperada": item["resposta_esperada"],
+                **{key: value for key, value in item.items() if key not in {"id", "categoria", "frase", "resposta_esperada"}},
                 "arquivo_audio": str(audio_path.relative_to(dataset_dir)),
                 "sample_rate": str(recorder.sample_rate),
                 "duracao_s": f"{duration_s:.3f}",

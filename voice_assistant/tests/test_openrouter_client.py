@@ -61,10 +61,10 @@ class OpenRouterClientTest(unittest.TestCase):
 
         self.assertEqual(result, "Tudo certo.")
         self.assertEqual(len(session.calls), 1)
-        self.assertEqual(session.calls[0]["json"]["tools"][0]["function"]["name"], "levanta")
+        self.assertEqual(session.calls[0]["json"]["tools"][0]["function"]["name"], "bateria")
         self.assertEqual(session.calls[0]["json"]["messages"][-1]["content"], "Oi")
 
-    def test_generate_executes_levanta_tool_and_returns_followup_text(self):
+    def test_generate_executes_bateria_tool_and_returns_followup_text(self):
         session = FakeSession(
             [
                 FakeResponse(
@@ -77,7 +77,7 @@ class OpenRouterClientTest(unittest.TestCase):
                                         {
                                             "id": "call-1",
                                             "type": "function",
-                                            "function": {"name": "levanta", "arguments": "{}"},
+                                            "function": {"name": "bateria", "arguments": "{}"},
                                         }
                                     ],
                                 }
@@ -101,17 +101,17 @@ class OpenRouterClientTest(unittest.TestCase):
         client = OpenRouterClient(api_key="test-key")
         client._session = session
 
-        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"levanta": lambda: "Ação levanta executada com sucesso."}):
-            result = client.generate("Levante-se")
+        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"bateria": lambda: "Bateria em 80%."}):
+            result = client.generate("Como está a bateria?")
 
         self.assertEqual(result, "Estou levantando agora.")
         self.assertEqual(len(session.calls), 2)
         followup_messages = session.calls[1]["json"]["messages"]
         self.assertEqual(followup_messages[-1]["role"], "tool")
-        self.assertEqual(followup_messages[-1]["name"], "levanta")
-        self.assertEqual(followup_messages[-1]["content"], "Ação levanta executada com sucesso.")
+        self.assertEqual(followup_messages[-1]["name"], "bateria")
+        self.assertEqual(followup_messages[-1]["content"], "Bateria em 80%.")
 
-    def test_generate_executes_observar_tool(self):
+    def test_generate_executes_acender_led_tool(self):
         session = FakeSession(
             [
                 FakeResponse(
@@ -124,7 +124,7 @@ class OpenRouterClientTest(unittest.TestCase):
                                         {
                                             "id": "call-2",
                                             "type": "function",
-                                            "function": {"name": "observar", "arguments": "{}"},
+                                            "function": {"name": "acender_led", "arguments": "{}"},
                                         }
                                     ],
                                 }
@@ -148,12 +148,12 @@ class OpenRouterClientTest(unittest.TestCase):
         client = OpenRouterClient(api_key="test-key")
         client._session = session
 
-        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"observar": lambda: "Ação observar executada com sucesso."}):
-            result = client.generate("Observe ao redor")
+        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"acender_led": lambda: "LED do peito aceso em azul."}):
+            result = client.generate("Acenda o led do peito")
 
         self.assertEqual(result, "Estou observando o ambiente.")
         self.assertEqual(len(session.calls), 2)
-        self.assertEqual(session.calls[1]["json"]["messages"][-1]["name"], "observar")
+        self.assertEqual(session.calls[1]["json"]["messages"][-1]["name"], "acender_led")
 
     def test_generate_executes_multiple_tool_calls(self):
         session = FakeSession(
@@ -168,12 +168,12 @@ class OpenRouterClientTest(unittest.TestCase):
                                         {
                                             "id": "call-a",
                                             "type": "function",
-                                            "function": {"name": "levanta", "arguments": "{}"},
+                                            "function": {"name": "acender_led", "arguments": "{}"},
                                         },
                                         {
                                             "id": "call-b",
                                             "type": "function",
-                                            "function": {"name": "observar", "arguments": "{}"},
+                                            "function": {"name": "acender_olhos", "arguments": "{}"},
                                         },
                                     ],
                                 }
@@ -200,18 +200,18 @@ class OpenRouterClientTest(unittest.TestCase):
         with patch(
             "src.llm.openrouter_client.TOOL_REGISTRY",
             {
-                "levanta": lambda: "Ação levanta executada com sucesso.",
-                "observar": lambda: "Ação observar executada com sucesso.",
+                "acender_led": lambda: "LED do peito aceso em azul.",
+                "acender_olhos": lambda: "Olhos acesos em azul.",
             },
         ):
-            result = client.generate("Levante e observe", conversation_id="sessao-multi")
+            result = client.generate("Acenda o led do peito e os olhos", conversation_id="sessao-multi")
 
         self.assertEqual(result, "Levantando e observando agora.")
         followup_messages = session.calls[1]["json"]["messages"]
         self.assertEqual(followup_messages[-2]["role"], "tool")
-        self.assertEqual(followup_messages[-2]["name"], "levanta")
+        self.assertEqual(followup_messages[-2]["name"], "acender_led")
         self.assertEqual(followup_messages[-1]["role"], "tool")
-        self.assertEqual(followup_messages[-1]["name"], "observar")
+        self.assertEqual(followup_messages[-1]["name"], "acender_olhos")
 
     def test_generate_falls_back_when_tool_is_unknown(self):
         session = FakeSession(
@@ -320,7 +320,7 @@ class OpenRouterClientTest(unittest.TestCase):
                                         {
                                             "id": "call-9",
                                             "type": "function",
-                                            "function": {"name": "levanta", "arguments": "{}"},
+                                            "function": {"name": "bateria", "arguments": "{}"},
                                         }
                                     ],
                                 }
@@ -329,22 +329,22 @@ class OpenRouterClientTest(unittest.TestCase):
                     }
                 ),
                 FakeResponse({"choices": [{"message": {"content": "Estou levantando agora."}}]}),
-                FakeResponse({"choices": [{"message": {"content": "Lembro que acabei de levantar."}}]}),
+                FakeResponse({"choices": [{"message": {"content": "Lembro que acabei de consultar a bateria."}}]}),
             ]
         )
         client = OpenRouterClient(api_key="test-key")
         client._session = session
 
-        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"levanta": lambda: "Ação levanta executada com sucesso."}):
-            client.generate("Levante-se", conversation_id="sessao-tool")
+        with patch("src.llm.openrouter_client.TOOL_REGISTRY", {"bateria": lambda: "Bateria em 80%."}):
+            client.generate("Como está a bateria?", conversation_id="sessao-tool")
             result = client.generate("O que você acabou de fazer?", conversation_id="sessao-tool")
 
-        self.assertEqual(result, "Lembro que acabei de levantar.")
+        self.assertEqual(result, "Lembro que acabei de consultar a bateria.")
         third_call_messages = session.calls[2]["json"]["messages"]
         roles = [message["role"] for message in third_call_messages]
         self.assertEqual(roles[1:5], ["user", "assistant", "tool", "assistant"])
-        self.assertEqual(third_call_messages[2]["tool_calls"][0]["function"]["name"], "levanta")
-        self.assertEqual(third_call_messages[3]["name"], "levanta")
+        self.assertEqual(third_call_messages[2]["tool_calls"][0]["function"]["name"], "bateria")
+        self.assertEqual(third_call_messages[3]["name"], "bateria")
         self.assertEqual(third_call_messages[4]["content"], "Estou levantando agora.")
 
 

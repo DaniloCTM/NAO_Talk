@@ -1,27 +1,25 @@
 id,categoria,frase_esperada,transcricao_stt,exact_match,stt_latency_s,audio_duration_s,audio_path
-003,acao_tool,Levante-se,Levante!,False,1.6488699149995227,2.94,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/003_acao_tool.wav
-004,acao_tool,Pode sentar,Pode sentar.,True,1.4134243130029063,2.01,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/004_acao_tool.wav
-005,acao_tool,Observe o ambiente,Observe o ambiente!,True,1.389390327000001,3.18,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/005_acao_tool.wav
-006,tempo,Que horas são?,Que horas são?,True,1.5069110740005272,5.94,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/006_tempo.wav
-007,clima,Como está o clima hoje?,Como está o clima hoje?,True,1.8150055799997062,2.76,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/007_clima.wav
-008,pergunta_simples,Quanto é dois mais dois?,quanto é 2 mais 2?,False,1.3560171689969138,5.73,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/008_pergunta_simples.wav
-009,idioma,Responda em português,Respondo em português.,False,1.4410777450029855,6.63,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/009_idioma.wav
-010,comando_composto,Levante e depois observe,Levante e depois observe.,True,1.4505407550022937,5.79,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/010_comando_composto.wav
-011,confirmacao,Você me ouviu?,Você me ouviu?,True,1.2906798269978026,5.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/011_confirmacao.wav
-012,ruido_sem_acao,Estou apenas testando o microfone,Estou apenas testando o microfone.,True,1.2380346079953597,5.64,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/012_ruido_sem_acao.wav
-013,memoria,Meu nome é Danilo,Meu nome é Danilo.,True,1.1859673879953334,1.86,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/013_memoria.wav
-014,memoria,Qual é o meu nome?,Qual é o seu nome?,False,1.2334430619957857,1.77,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/014_memoria.wav
-015,memoria,Guarde que minha cor favorita é azul,Guarde que minha cor favorita é azul.,True,1.2611482159991283,2.7,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/015_memoria.wav
-016,memoria,Qual é minha cor favorita?,Qual é a minha favorita?,False,1.4945016669953475,2.85,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/016_memoria.wav
-017,contexto_acao,Levante-se,Levante!,False,1.3736069869992207,1.56,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/017_contexto_acao.wav
-018,contexto_acao,O que você acabou de fazer?,o que você acabou de fazer.,True,1.353317478999088,2.16,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/018_contexto_acao.wav
-019,contexto_acao,Agora sente,Agora sente.,True,1.9918790779993287,1.68,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/019_contexto_acao.wav
-020,contexto_acao,"E agora, o que você fez?","E agora, o que você fez?",True,1.7546280179958558,2.16,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/020_contexto_acao.wav
-021,memoria_factual,Estou em um laboratório de robótica,Estou em um laboratório de robótica.,True,1.4548671980010113,5.55,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/021_memoria_factual.wav
-022,memoria_factual,Onde eu estou?,onde eu estou.,True,1.5992948339990107,2.43,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/022_memoria_factual.wav
-023,frase_longa,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto,Hoje eu quero testar se o assistente consegue entender uma frase um pouco maior sem perder o contexto.,True,1.530411968997214,6.18,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/023_frase_longa.wav
-024,numero,Anote o número quarenta e dois,a noite número 42.,False,1.2646656910001184,2.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/024_numero.wav
-025,numero,Qual número eu falei?,Qual o número eu falei?,False,1.414938168003573,1.92,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/025_numero.wav
-026,fala_natural,"Hum, deixa eu pensar, acho que você pode observar o ambiente agora","Um, deixa eu pensar. Acho que você pode observar o ambiente agora.",False,1.4019438199975411,5.61,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/026_fala_natural.wav
-027,variacao_acao,"NAO, sente por favor","NAL, sente por favor.",False,1.2748618670011638,2.85,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/027_variacao_acao.wav
-028,variacao_acao,"NAO, levanta agora","Now, levanta agora!",False,1.3530591090020607,2.04,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/028_variacao_acao.wav
+001,tool_bateria,Como está a sua bateria?,como está a sua bateria.,True,1.8617222619941458,2.16,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/001_tool_bateria.wav
+002,tool_bateria,Qual é o nível de carga do NAO?,Qual é o nível de carga do NAU?,False,1.4126650980324484,3.3,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/002_tool_bateria.wav
+003,tool_bateria,O robô está carregando?,O robô está carregado.,False,1.3662137190112844,2.19,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/003_tool_bateria.wav
+004,tool_acender_led,Acenda o LED do peito,Acenda o LED do peito.,True,1.5702160709770396,2.43,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/004_tool_acender_led.wav
+005,tool_apagar_led,Apague o LED do peito,Apague o LED do peito.,True,1.693682968034409,3.03,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/005_tool_apagar_led.wav
+006,tool_acender_led,Ligue a luz do peito,Ligue a luz do peito.,True,2.4084996129968204,2.73,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/006_tool_acender_led.wav
+007,tool_apagar_led,Desligue a luz do peito,Desligue a Luís do peito.,False,1.8256270530400798,2.97,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/007_tool_apagar_led.wav
+008,tool_acender_olhos,Acenda os olhos,Acenda os olhos.,True,1.7963176500052214,2.88,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/008_tool_acender_olhos.wav
+009,tool_apagar_olhos,Apague os olhos,Apague os olhos.,True,1.4655551469768398,2.73,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/009_tool_apagar_olhos.wav
+010,tool_acender_olhos,Ligue as luzes dos olhos,Ligue as luzes dos olhos.,True,1.771520263981074,3.15,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/010_tool_acender_olhos.wav
+011,tool_apagar_olhos,Desligue as luzes dos olhos,Desligue as luzes dos olhos.,True,1.6715554620022886,3.27,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/011_tool_apagar_olhos.wav
+012,tool_cabeca_esquerda,Mova a cabeça para a esquerda,MOVA A Cabeça para a esquerda,True,1.6765510439872742,3.24,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/012_tool_cabeca_esquerda.wav
+013,tool_cabeca_direita,Mova a cabeça para a direita,MOVA A CABEÇA PARA DIREITA,False,1.882825318025425,3.24,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/013_tool_cabeca_direita.wav
+014,tool_centralizar_cabeca,Centralize a cabeça,Centralize a cabeça.,True,1.5485034420271404,2.79,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/014_tool_centralizar_cabeca.wav
+015,tool_cabeca_esquerda,Vire a cabeça para a esquerda,Vire a cabeça para a esquerda.,True,2.115072095999494,2.7,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/015_tool_cabeca_esquerda.wav
+016,tool_cabeca_direita,Olhe para a direita,Olhe para direito.,False,1.8544341250089929,2.76,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/016_tool_cabeca_direita.wav
+017,tool_centralizar_cabeca,Volte a cabeça para o centro,Volte a cabeça para o centro.,True,2.164877362025436,2.88,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/017_tool_centralizar_cabeca.wav
+018,tool_composta_luzes,Acenda o LED do peito e os olhos,Acenda o LED do peito e dos olhos.,False,2.0369280430022627,3.57,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/018_tool_composta_luzes.wav
+019,tool_composta_luzes,Apague o LED do peito e os olhos,Apague o LED do peito e dos olhos.,False,2.0887370579876006,3.12,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/019_tool_composta_luzes.wav
+020,tool_composta_cabeca,Mova a cabeça para a esquerda e depois centralize,Move a cabeça para a esquerda e depois centralize.,False,1.9718474090332165,3.27,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/020_tool_composta_cabeca.wav
+021,tool_composta_cabeca,Mova a cabeça para a direita e depois centralize,Mova a cabeça para a direita e depois centralize.,True,1.6501850299537182,4.23,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/021_tool_composta_cabeca.wav
+022,tool_variacao_led,Ative a luz do peito,Ative a luz do peito.,True,1.5920442159986123,2.37,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/022_tool_variacao_led.wav
+023,tool_variacao_bateria,Me diga a carga da bateria,Me diga a carga da bateria.,True,2.0027339949738234,2.4,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/023_tool_variacao_bateria.wav
+024,tool_variacao_cabeca,Centralize sua cabeça agora,Centralize sua cabeça agora.,True,2.522109957993962,3.12,/home/danilo/Faculdade/TCC/code/voice_assistant/dataset_teste/audio/024_tool_variacao_cabeca.wav
